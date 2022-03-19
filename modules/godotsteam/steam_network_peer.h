@@ -25,6 +25,9 @@ public:
 	SteamNetworkPeer();
 	~SteamNetworkPeer();
 
+	/* User Functions */
+	void createLobby(int lobby_type, int max_members);
+
 	enum LOBBY_TYPE {
 		PRIVATE = ELobbyType::k_ELobbyTypePrivate,
 		FRIENDS_ONLY = ELobbyType::k_ELobbyTypeFriendsOnly,
@@ -51,6 +54,27 @@ public:
 	virtual bool is_refusing_new_connections() const;
 	virtual ConnectionStatus get_connection_status() const;
 
+	/* Callbacks */
+
+	// void lobbyCreated();
+	// void lobbyMatchList();
+	// void lobbyJoined();
+	// void lobbyChatUpdate();
+	// void lobbyMessage();
+	// void lobbyDataUpdate(uint64_t lobby_id, uint64_t changed_id, uint64_t making_change_id, uint32 chat_state);
+	// void lobbyInvite();
+	// void joinRequested();
+
+	
+	void lobbyMessage( int lobbyId, int user, String message, int chatType);
+	void lobbyChatUpdate( int lobbyId, int changedId, int makingChangeId, int chatState);
+	void lobbyCreated( int connect, int lobbyId);
+	void lobbyDataUpdate( int success, int lobbyId, int memberId);
+	void lobbyJoined( int lobby, int permissions, bool locked, int response);
+	void lobbyGameCreated( int lobbyId, int serverId, String serverIp, int port);
+	void lobbyInvite( int inviter, int lobby, int game);
+	void lobbyMatchList( Array lobbies);
+	void lobbyKicked( int lobbyId, int adminId, int dueToDisconnect);
 };
 
 
