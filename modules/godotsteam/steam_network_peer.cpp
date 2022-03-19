@@ -2,7 +2,7 @@
 #include "godotsteam.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/os/os.h"
-#include "simple_steam_network_peer.h"
+#include "steam_network_peer.h"
 
 SteamNetworkPeer::SteamNetworkPeer(){
 

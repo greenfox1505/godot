@@ -3,7 +3,7 @@
 #include "core/engine.h"
 #include "godotsteam.h"
 
-#include "simple_steam_network_peer.h"
+#include "steam_network_peer.h"
 
 static Steam* SteamPtr = NULL;
 
