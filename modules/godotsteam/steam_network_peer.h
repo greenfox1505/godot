@@ -5,10 +5,18 @@
 #include "godotsteam.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/os/os.h"
-
+#include "steam/steam_api.h"
 class SteamNetworkPeer : public NetworkedMultiplayerPeer {
+public:
+
+	typedef NetworkedMultiplayerPeer::ConnectionStatus ConnectionStatus;
+	typedef NetworkedMultiplayerPeer::TransferMode TransferMode;
+
+private:
 	GDCLASS(SteamNetworkPeer, NetworkedMultiplayerPeer);
 	
+	Steam* steam;
+
 	enum LOBBY_STATE {
 		DISCONNECTED = -1,
 		HOST_PENDING,
@@ -16,7 +24,7 @@ class SteamNetworkPeer : public NetworkedMultiplayerPeer {
 		CLIENT_PENDING,
 		CLIENT
 	} lobbyState = LOBBY_STATE::DISCONNECTED;
-
+	
 	struct Packet {
 		void* data;
 		uint32 size;
@@ -24,8 +32,18 @@ class SteamNetworkPeer : public NetworkedMultiplayerPeer {
 		int channel;
 	};
 
-	List<Packet> receivedPackets;
+	List<Packet> receivedPackets = List<Packet>();
 	// List<Packet> sentPackets;
+
+	ConnectionStatus connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
+	TransferMode transferMode = TransferMode::TRANSFER_MODE_RELIABLE;
+	int targetPeer = 0; //0 means all
+
+	CSteamID lobbyId;
+	bool isServer = false;
+	bool refuseConnections = false;
+
+	Dictionary lobbyData;
 
 protected:
 	static void _bind_methods();
@@ -33,6 +51,8 @@ protected:
 public:
 	SteamNetworkPeer();
 	~SteamNetworkPeer();
+
+
 
 	/* User Functions */
 	void createLobby(int lobby_type, int max_members);
@@ -64,27 +84,15 @@ public:
 	virtual ConnectionStatus get_connection_status() const;
 
 	/* Callbacks */
-
-	// void lobbyCreated();
-	// void lobbyMatchList();
-	// void lobbyJoined();
-	// void lobbyChatUpdate();
-	// void lobbyMessage();
-	// void lobbyDataUpdate(uint64_t lobby_id, uint64_t changed_id, uint64_t making_change_id, uint32 chat_state);
-	// void lobbyInvite();
-	// void joinRequested();
-
-	
-	void lobbyMessage( int lobbyId, int user, String message, int chatType);
-	void lobbyChatUpdate( int lobbyId, int changedId, int makingChangeId, int chatState);
-	void lobbyCreated( int connect, int lobbyId);
-	void lobbyDataUpdate( int success, int lobbyId, int memberId);
-	void lobbyJoined( int lobby, int permissions, bool locked, int response);
-	void lobbyGameCreated( int lobbyId, int serverId, String serverIp, int port);
-	void lobbyInvite( int inviter, int lobby, int game);
+	void lobbyMessage( uint64_t lobbyId, uint64_t user, String message, uint8 chatType);
+	void lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState);
+	void lobbyCreated( int connect, uint64_t lobbyId);
+	void lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId);
+	void lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response);
+	void lobbyGameCreated( uint64_t lobbyId, uint64_t serverId, String serverIp, uint16 port);
+	void lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game);
 	void lobbyMatchList( Array lobbies);
-	void lobbyKicked( int lobbyId, int adminId, int dueToDisconnect);
+	void lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect);
 };
-
 
 #endif // SIMPLE_STEAM_NETWORK_PEER_H

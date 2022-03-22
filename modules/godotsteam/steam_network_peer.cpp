@@ -4,40 +4,26 @@
 #include "core/os/os.h"
 #include "steam_network_peer.h"
 
+
 SteamNetworkPeer::SteamNetworkPeer() {
-	auto s = Steam::get_singleton();
+	steam = Steam::get_singleton();
 	// s->set_steam_network_peer(this);
-	if( s != nullptr){
-		s->connect( "lobby_message", this,"lobbyMessage");
-		s->connect( "lobby_chat_update", this,"lobbyChatUpdate");
-		s->connect( "lobby_created", this,"lobbyCreated");
-		s->connect( "lobby_data_update", this,"lobbyDataUpdate");
-		s->connect( "lobby_joined", this,"lobbyJoined");
-		s->connect( "lobby_game_created", this,"lobbyGameCreated");
-		s->connect( "lobby_invite", this,"lobbyInvite");
-		s->connect( "lobby_match_list", this,"lobbyMatchList");
-		s->connect( "lobby_kicked", this,"lobbyKicked");
-		s->connect("steamworks_error",this,"continue");
+	if( steam != nullptr){
+		steam->connect( "lobby_message", this,"lobbyMessage");
+		steam->connect( "lobby_chat_update", this,"lobbyChatUpdate");
+		steam->connect( "lobby_created", this,"lobbyCreated");
+		steam->connect( "lobby_data_update", this,"lobbyDataUpdate");
+		steam->connect( "lobby_joined", this,"lobbyJoined");
+		steam->connect( "lobby_game_created", this,"lobbyGameCreated");
+		steam->connect( "lobby_invite", this,"lobbyInvite");
+		steam->connect( "lobby_match_list", this,"lobbyMatchList");
+		steam->connect( "lobby_kicked", this,"lobbyKicked");
+		steam->connect("steamworks_error",this,"continue");
 	}
+	this->connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
 };
 SteamNetworkPeer::~SteamNetworkPeer() {
-	auto s = Steam::get_singleton();
-	// if ( s->get_steam_network_peer() == this ){
-	// 	s->set_steam_network_peer(NULL);
-	// }
-	//wait, do destructors need to clean this up? doesn't Godot handle this?
-	// auto s = Steam::get_singleton();
-	// if( s != nullptr){
-	// 	s->disconnect( "lobby_message", this,"lobbyMessage");
-	// 	s->disconnect( "lobby_chat_update", this,"lobbyChatUpdate");
-	// 	s->disconnect( "lobby_created", this,"lobbyCreated");
-	// 	s->disconnect( "lobby_data_update", this,"lobbyDataUpdate");
-	// 	s->disconnect( "lobby_joined", this,"lobbyJoined");
-	// 	s->disconnect( "lobby_game_created", this,"lobbyGameCreated");
-	// 	s->disconnect( "lobby_invite", this,"lobbyInvite");
-	// 	s->disconnect( "lobby_match_list", this,"lobbyMatchList");
-	// 	s->disconnect( "lobby_kicked", this,"lobbyKicked");
-	// }
+
 };
 
 void SteamNetworkPeer::_bind_methods() {
@@ -72,6 +58,7 @@ void SteamNetworkPeer::_bind_methods() {
 
 /* User Functions */
 void SteamNetworkPeer::createLobby(int lobby_type, int max_members){
+	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	Steam::get_singleton()->createLobby(lobby_type,max_members);
 }
 
@@ -82,8 +69,19 @@ Error SteamNetworkPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size)
 };
 
 Error SteamNetworkPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
-	WARN_PRINT("SteamNetworkPeer::put_packet: not yet implemented!");
-	return Error::ERR_PRINTER_ON_FIRE;
+	// String a;
+	// a.copy_from_unchecked(p_buffer,p_buffer_size);
+	// steam->sendLobbyChatMsg()
+	bool sentValid = SteamMatchmaking()->SendLobbyChatMsg(lobbyId, p_buffer, p_buffer_size);
+	if(sentValid){
+		return Error::OK;
+	}
+	else{
+		ERR_PRINT("SteamNetworkPeer::put_packet: packed failed to send!");
+		return Error::ERR_CONNECTION_ERROR;
+	}
+	// WARN_PRINT("SteamNetworkPeer::put_packet: not yet implemented!");
+	// return Error::ERR_PRINTER_ON_FIRE;
 };
 
 int SteamNetworkPeer::get_max_packet_size() const {
@@ -93,25 +91,21 @@ int SteamNetworkPeer::get_max_packet_size() const {
 
 int SteamNetworkPeer::get_available_packet_count() const {
 	return this->receivedPackets.size();
-	// WARN_PRINT("SteamNetworkPeer::get_available_packet_count: not yet implemented!");
-	// return -1;
 };
 
 
 /* Specific to NetworkedMultiplayerPeer */
-void SteamNetworkPeer::set_transfer_mode(NetworkedMultiplayerPeer::TransferMode p_mode) {
-	WARN_PRINT("SteamNetworkPeer::set_transfer_mode: not yet implemented!");
-	return;
-};
+void SteamNetworkPeer::set_transfer_mode(SteamNetworkPeer::TransferMode p_mode) {
+	this->transferMode = p_mode;
+}; //todo set the steam thing for these
 
-NetworkedMultiplayerPeer::TransferMode SteamNetworkPeer::get_transfer_mode() const {
-	WARN_PRINT("SteamNetworkPeer::get_transfer_mode: not yet implemented!");
-	return NetworkedMultiplayerPeer::TransferMode::TRANSFER_MODE_RELIABLE;
+SteamNetworkPeer::TransferMode SteamNetworkPeer::get_transfer_mode() const {
+	return this->transferMode;
 };
 
 void SteamNetworkPeer::set_target_peer(int p_peer_id) {
-	WARN_PRINT("SteamNetworkPeer::set_target_peer: not yet implemented!");
-	return;
+	targetPeer = p_peer_id;
+	WARN_PRINT("SteamNetworkPeer::set_target_peer: todo, prequalify steam id!");
 };
 
 int SteamNetworkPeer::get_packet_peer() const {
@@ -120,21 +114,25 @@ int SteamNetworkPeer::get_packet_peer() const {
 };
 
 bool SteamNetworkPeer::is_server() const {
-	WARN_PRINT("SteamNetworkPeer::is_server: not yet implemented!");
-	return false;
+	return isServer;
 };
 
 void SteamNetworkPeer::poll() {
-	WARN_PRINT("SteamNetworkPeer::poll: not yet implemented!");
-	return;
+	//don't like this, but it's the default behaviour
+	// Steam::get_singleton()->run_callbacks();
 };
 
 int SteamNetworkPeer::get_unique_id() const {
+	if(isServer){
+		return 1;
+	}
+	CSteamID steam_id = SteamUser()->GetSteamID();
 	WARN_PRINT("SteamNetworkPeer::get_unique_id: not yet implemented!");
 	return -1;
 };
 
 void SteamNetworkPeer::set_refuse_new_connections(bool p_enable) {
+	
 	WARN_PRINT("SteamNetworkPeer::set_refuse_new_connections: not yet implemented!");
 	return;
 };
@@ -144,39 +142,75 @@ bool SteamNetworkPeer::is_refusing_new_connections() const {
 	return false;
 };
 
-NetworkedMultiplayerPeer::ConnectionStatus SteamNetworkPeer::get_connection_status() const {
-	WARN_PRINT("SteamNetworkPeer::ConnectionStatus: not yet implemented!");
-	return NetworkedMultiplayerPeer::ConnectionStatus::CONNECTION_CONNECTED;
+SteamNetworkPeer::ConnectionStatus SteamNetworkPeer::get_connection_status() const {
+	return connectionStatus;
 };
 
 
 
 /* Callbacks */
-void SteamNetworkPeer::lobbyMessage( int lobbyId, int user, String message, int chatType){
+void SteamNetworkPeer::lobbyMessage( uint64_t lobbyId, uint64_t user, String message, uint8 chatType){
+	SteamNetworkPeer::Packet p;
+	// p.channel
 	WARN_PRINT("lobbyMessage: not yet implemented!");
 };
 
-void SteamNetworkPeer::lobbyChatUpdate( int lobbyId, int changedId, int makingChangeId, int chatState){
+void SteamNetworkPeer::lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState){
 	WARN_PRINT("lobbyChatUpdate: not yet implemented!");
 };
 
-void SteamNetworkPeer::lobbyCreated( int connect, int lobbyId){
-	WARN_PRINT("lobbyCreated: not yet implemented!");
+void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
+	if( connect == 1 ){
+		this->lobbyId = lobbyId;
+		connectionStatus = ConnectionStatus::CONNECTION_CONNECTED;
+		isServer = true;
+		// emit_signal("connection_succeeded");
+		// emit_signal("peer_connected",1);
+	}
+	else{
+		ERR_PRINT("ERROR ON LOBBY CREATION!");
+		emit_signal("connection_failed");
+	}
 };
 
-void SteamNetworkPeer::lobbyDataUpdate( int success, int lobbyId, int memberId){
-	WARN_PRINT("lobbyDataUpdate: not yet implemented!");
+void SteamNetworkPeer::lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId){
+	if(this->lobbyId != lobbyId){
+		return;
+	}
+	else if(success == 1){
+		if(lobbyId == memberId){
+			lobbyData = steam->getAllLobbyData(lobbyId);
+			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
+		}
+		else{
+			WARN_PRINT("lobbyGameCreated: todo, user data!");
+		}
+	}
+	else 
+		ERR_PRINT("SteamNetworkPeer::lobbyDataUpdate: failed!");
 };
 
-void SteamNetworkPeer::lobbyJoined( int lobby, int permissions, bool locked, int response){
-	WARN_PRINT("lobbyJoined: not yet implemented!");
+void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response){
+	if(response != k_EChatRoomEnterResponseSuccess){
+		ERR_PRINT("lobbyJoined: Joined lobby failed!");
+		emit_signal("connection_failed");
+		return;
+	}
+	if(isServer){
+		//don't do stuff if you're already the host
+	}
+	else{
+		this->lobbyId = lobbyId;
+		connectionStatus = ConnectionStatus::CONNECTION_CONNECTED;
+		emit_signal("connection_succeeded");
+	}
 };
 
-void SteamNetworkPeer::lobbyGameCreated( int lobbyId, int serverId, String serverIp, int port){
+void SteamNetworkPeer::lobbyGameCreated( uint64_t lobbyId, uint64_t serverId, String serverIp, uint16 port){
 	WARN_PRINT("lobbyGameCreated: not yet implemented!");
 };
 
-void SteamNetworkPeer::lobbyInvite( int inviter, int lobby, int game){
+void SteamNetworkPeer::lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game){
 	WARN_PRINT("lobbyInvite: not yet implemented!");
 };
 
@@ -184,7 +218,7 @@ void SteamNetworkPeer::lobbyMatchList( Array lobbies){
 	WARN_PRINT("lobbyMatchList: not yet implemented!");
 };
 
-void SteamNetworkPeer::lobbyKicked( int lobbyId, int adminId, int dueToDisconnect){
+void SteamNetworkPeer::lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect){
 	WARN_PRINT("lobbyKicked: not yet implemented!");
 };
 
