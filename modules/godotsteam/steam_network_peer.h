@@ -17,6 +17,15 @@ class SteamNetworkPeer : public NetworkedMultiplayerPeer {
 		CLIENT
 	} lobbyState = LOBBY_STATE::DISCONNECTED;
 
+	struct Packet {
+		void* data;
+		uint32 size;
+		uint64 from;
+		int channel;
+	};
+
+	List<Packet> receivedPackets;
+	// List<Packet> sentPackets;
 
 protected:
 	static void _bind_methods();
