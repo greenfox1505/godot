@@ -4,12 +4,20 @@
 #include "core/os/os.h"
 #include "steam_network_peer.h"
 
+#define IS_DEBUG true
+#if IS_DEBUG
+#define TODO_PRINT(str) WARN_PRINT(String("TODO:") + String(str))
+#else
+#define TODO_PRINT(ignored)
+#endif
 
-SteamNetworkPeer::SteamNetworkPeer() {
+
+SteamNetworkPeer::SteamNetworkPeer():
+	callbackLobbyMessage(this, &SteamNetworkPeer::lobbyMessage)
+{
 	steam = Steam::get_singleton();
 	// s->set_steam_network_peer(this);
 	if( steam != nullptr){
-		steam->connect( "lobby_message", this,"lobbyMessage");
 		steam->connect( "lobby_chat_update", this,"lobbyChatUpdate");
 		steam->connect( "lobby_created", this,"lobbyCreated");
 		steam->connect( "lobby_data_update", this,"lobbyDataUpdate");
@@ -22,14 +30,14 @@ SteamNetworkPeer::SteamNetworkPeer() {
 	}
 	this->connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
 };
-SteamNetworkPeer::~SteamNetworkPeer() {
+SteamNetworkPeer::~SteamNetworkPeer()
+{
 
 };
 
 void SteamNetworkPeer::_bind_methods() {
 	// ClassDB::bind_method(D_METHOD())
 	//I hate this. None of the fucntions should be called externally...
-	ClassDB::bind_method(D_METHOD("lobbyMessage"), &SteamNetworkPeer::lobbyMessage);
 	ClassDB::bind_method(D_METHOD("lobbyChatUpdate"), &SteamNetworkPeer::lobbyChatUpdate);
 	ClassDB::bind_method(D_METHOD("lobbyCreated"), &SteamNetworkPeer::lobbyCreated);
 	ClassDB::bind_method(D_METHOD("lobbyDataUpdate"), &SteamNetworkPeer::lobbyDataUpdate);
@@ -64,28 +72,28 @@ void SteamNetworkPeer::createLobby(int lobby_type, int max_members){
 
 /* Specific to PacketPeer */
 Error SteamNetworkPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
-	WARN_PRINT("SteamNetworkPeer::get_packet: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 	return Error::ERR_PRINTER_ON_FIRE;
 };
 
 Error SteamNetworkPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 	// String a;
 	// a.copy_from_unchecked(p_buffer,p_buffer_size);
-	// steam->sendLobbyChatMsg()
+	steam->sendLobbyChatMsg()
 	bool sentValid = SteamMatchmaking()->SendLobbyChatMsg(lobbyId, p_buffer, p_buffer_size);
 	if(sentValid){
 		return Error::OK;
 	}
 	else{
-		ERR_PRINT("SteamNetworkPeer::put_packet: packed failed to send!");
+		ERR_PRINT("packed failed to send!");
 		return Error::ERR_CONNECTION_ERROR;
 	}
-	// WARN_PRINT("SteamNetworkPeer::put_packet: not yet implemented!");
+	// WARN_PRINT("not yet implemented!");
 	// return Error::ERR_PRINTER_ON_FIRE;
 };
 
 int SteamNetworkPeer::get_max_packet_size() const {
-	WARN_PRINT("SteamNetworkPeer::get_max_packet_size: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 	return -1;
 };
 
@@ -97,7 +105,8 @@ int SteamNetworkPeer::get_available_packet_count() const {
 /* Specific to NetworkedMultiplayerPeer */
 void SteamNetworkPeer::set_transfer_mode(SteamNetworkPeer::TransferMode p_mode) {
 	this->transferMode = p_mode;
-}; //todo set the steam thing for these
+	TODO_PRINT("todo set the steam thing for these!");
+};
 
 SteamNetworkPeer::TransferMode SteamNetworkPeer::get_transfer_mode() const {
 	return this->transferMode;
@@ -105,11 +114,11 @@ SteamNetworkPeer::TransferMode SteamNetworkPeer::get_transfer_mode() const {
 
 void SteamNetworkPeer::set_target_peer(int p_peer_id) {
 	targetPeer = p_peer_id;
-	WARN_PRINT("SteamNetworkPeer::set_target_peer: todo, prequalify steam id!");
+	TODO_PRINT("todo, prequalify steam id!");
 };
 
 int SteamNetworkPeer::get_packet_peer() const {
-	WARN_PRINT("SteamNetworkPeer::get_packet_peer: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 	return -1;
 };
 
@@ -127,19 +136,17 @@ int SteamNetworkPeer::get_unique_id() const {
 		return 1;
 	}
 	CSteamID steam_id = SteamUser()->GetSteamID();
-	WARN_PRINT("SteamNetworkPeer::get_unique_id: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 	return -1;
 };
 
 void SteamNetworkPeer::set_refuse_new_connections(bool p_enable) {
-	
-	WARN_PRINT("SteamNetworkPeer::set_refuse_new_connections: not yet implemented!");
-	return;
+	refuseConnections = p_enable;
+	TODO_PRINT("figure out if I need to do something on the steam side here");
 };
 
 bool SteamNetworkPeer::is_refusing_new_connections() const {
-	WARN_PRINT("SteamNetworkPeer::is_refusing_new_connections: not yet implemented!");
-	return false;
+	return refuseConnections;
 };
 
 SteamNetworkPeer::ConnectionStatus SteamNetworkPeer::get_connection_status() const {
@@ -149,14 +156,10 @@ SteamNetworkPeer::ConnectionStatus SteamNetworkPeer::get_connection_status() con
 
 
 /* Callbacks */
-void SteamNetworkPeer::lobbyMessage( uint64_t lobbyId, uint64_t user, String message, uint8 chatType){
-	SteamNetworkPeer::Packet p;
-	// p.channel
-	WARN_PRINT("lobbyMessage: not yet implemented!");
-};
+
 
 void SteamNetworkPeer::lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState){
-	WARN_PRINT("lobbyChatUpdate: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
@@ -183,16 +186,16 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_
 			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
 		}
 		else{
-			WARN_PRINT("lobbyGameCreated: todo, user data!");
+			TODO_PRINT("lobbyGameCreated: todo, user data!");
 		}
 	}
 	else 
-		ERR_PRINT("SteamNetworkPeer::lobbyDataUpdate: failed!");
+		ERR_PRINT("failed!");
 };
 
 void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response){
 	if(response != k_EChatRoomEnterResponseSuccess){
-		ERR_PRINT("lobbyJoined: Joined lobby failed!");
+		ERR_PRINT("Joined lobby failed!");
 		emit_signal("connection_failed");
 		return;
 	}
@@ -207,24 +210,44 @@ void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool
 };
 
 void SteamNetworkPeer::lobbyGameCreated( uint64_t lobbyId, uint64_t serverId, String serverIp, uint16 port){
-	WARN_PRINT("lobbyGameCreated: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game){
-	WARN_PRINT("lobbyInvite: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyMatchList( Array lobbies){
-	WARN_PRINT("lobbyMatchList: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect){
-	WARN_PRINT("lobbyKicked: not yet implemented!");
+	WARN_PRINT("not yet implemented!");
 };
 
 
-
-
-
-
-
+/* Steam_API direct callbacks */
+void SteamNetworkPeer::lobbyMessage(LobbyChatMsg_t* call_data){
+	if(lobbyId != call_data->m_ulSteamIDLobby){
+		return;
+	}
+	CSteamID user_id = call_data->m_ulSteamIDUser;
+	uint8 chat_type = call_data->m_eChatEntryType;
+	// Convert the chat type over
+	EChatEntryType type = (EChatEntryType)chat_type;
+	// Get the chat message data
+	char buffer[4096];
+	int size = SteamMatchmaking()->GetLobbyChatEntry(lobby_id, call_data->m_iChatID, &user_id, &buffer, 4096, &type);
+	uint64_t lobby = lobby_id.ConvertToUint64();
+	uint64_t user = user_id.ConvertToUint64();
+	String s = String::utf8(buffer,size);
+	PoolByteArray out;
+	out.resize(size);
+	for(int i = 0; i < size; i++){out.set(i,buffer[i]);}
+// 	lobbyMessage( lobby, user, out, chat_type);
+// }
+// void SteamNetworkPeer::lobbyMessage( uint64_t lobbyId, uint64_t user, PoolByteArray message, uint8 chatType){
+	// p.channel
+	WARN_PRINT("not yet implemented!");
+	TODO_PRINT("here I need to store messages. Packets are consumed with get_packet calls!");
+};

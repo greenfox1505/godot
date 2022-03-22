@@ -84,7 +84,6 @@ public:
 	virtual ConnectionStatus get_connection_status() const;
 
 	/* Callbacks */
-	void lobbyMessage( uint64_t lobbyId, uint64_t user, String message, uint8 chatType);
 	void lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState);
 	void lobbyCreated( int connect, uint64_t lobbyId);
 	void lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId);
@@ -93,6 +92,9 @@ public:
 	void lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game);
 	void lobbyMatchList( Array lobbies);
 	void lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect);
+
+	STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);
+	// void lobbyMessage( uint64_t lobbyId, uint64_t user, PoolByteArray message, uint8 chatType);
 };
 
 #endif // SIMPLE_STEAM_NETWORK_PEER_H

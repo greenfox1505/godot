@@ -3858,7 +3858,7 @@ bool Steam::sendLobbyChatMsg(uint64_t steam_lobby_id, const String& message_body
 		return false;
 	}
 	CSteamID lobby_id = (uint64)steam_lobby_id;
-	return SteamMatchmaking()->SendLobbyChatMsg(lobby_id, message_body.utf8().get_data(), 4096);
+	return SteamMatchmaking()->SendLobbyChatMsg(lobby_id, message_body.utf8().get_data(), message_body.size() + 1);
 }
 
 //! Refreshes metadata for a lobby you're not necessarily in right now.
@@ -9907,10 +9907,14 @@ void Steam::lobby_message(LobbyChatMsg_t* call_data){
 	EChatEntryType type = (EChatEntryType)chat_type;
 	// Get the chat message data
 	char buffer[4096];
-	SteamMatchmaking()->GetLobbyChatEntry(lobby_id, call_data->m_iChatID, &user_id, &buffer, 4096, &type);
+	int size = SteamMatchmaking()->GetLobbyChatEntry(lobby_id, call_data->m_iChatID, &user_id, &buffer, 4096, &type);
 	uint64_t lobby = lobby_id.ConvertToUint64();
 	uint64_t user = user_id.ConvertToUint64();
-	emit_signal("lobby_message", lobby, user, String::utf8(buffer), chat_type);
+	String s = String::utf8(buffer,size);
+	PoolByteArray out;
+	out.resize(size);
+	for(int i = 0; i < size; i++){out.set(i,buffer[i]);}
+	emit_signal("lobby_message", lobby, user, out, chat_type);
 }
 
 //! A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
