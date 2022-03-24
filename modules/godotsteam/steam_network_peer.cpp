@@ -183,7 +183,7 @@ void SteamNetworkPeer::lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, ui
 
 void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
 	if( connect == 1 ){
-		this->lobbyId = lobbyId;
+		this->lobbyId = CSteamID(uint64(lobbyId));
 		connectionStatus = ConnectionStatus::CONNECTION_CONNECTED;
 		isServer = true;
 		// emit_signal("connection_succeeded");
@@ -196,7 +196,7 @@ void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
 };
 
 void SteamNetworkPeer::lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId){
-	if(this->lobbyId != lobbyId){
+	if(this->lobbyId.ConvertToUint64() != lobbyId){
 		return;
 	}
 	else if(success == 1){
@@ -224,7 +224,7 @@ void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool
 		//don't do stuff if you're already the host
 	}
 	else{
-		this->lobbyId = lobbyId;
+		this->lobbyId = CSteamID(uint64(lobbyId));
 		connectionStatus = ConnectionStatus::CONNECTION_CONNECTED;
 		emit_signal("connection_succeeded");
 	}
