@@ -49,6 +49,12 @@ void SteamNetworkPeer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("create_lobby", "lobby_type", "max_members"), &SteamNetworkPeer::createLobby, DEFVAL(FRIENDS_ONLY),DEFVAL(2));
 
+	// peer_connected //pre existing signals
+	// peer_disconnected
+	// connection_succeeded
+	// connection_failed
+	// server_disconnected
+
 	ADD_SIGNAL(MethodInfo("continue", PropertyInfo(Variant::STRING, "message")));
 	ADD_SIGNAL(MethodInfo("lobbyEvent", PropertyInfo(Variant::STRING, "message")));
 
@@ -213,6 +219,8 @@ void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool
 		return;
 	}
 	if(isServer){
+		// emit_signal("peer_connected",1);
+		TODO_PRINT("This signal shouldn't happen, but it was useful to test peer messages.");
 		//don't do stuff if you're already the host
 	}
 	else{
@@ -247,14 +255,14 @@ void SteamNetworkPeer::lobbyMessage(LobbyChatMsg_t* call_data){
 	Packet* packet = new Packet;
 
 	packet->sender = call_data->m_ulSteamIDUser;
-	if(steam->getSteamID() == packet->sender){
+	if(SteamUser()->GetSteamID() == packet->sender){
 		return;
 	}
 	uint8 chat_type = call_data->m_eChatEntryType;
 	// Convert the chat type over
 	EChatEntryType type = (EChatEntryType)chat_type;
 	// Get the chat message data
-	packet->size = SteamMatchmaking()->GetLobbyChatEntry(lobbyId, call_data->m_iChatID, &sender, &(packet->data), MAX_STEAM_PACKET_SIZE, &type);
+	packet->size = SteamMatchmaking()->GetLobbyChatEntry(lobbyId, call_data->m_iChatID, &(packet->sender), &(packet->data), MAX_STEAM_PACKET_SIZE, &type);
 	packet->channel = -1;
 
 	receivedPackets.push_back(packet);
