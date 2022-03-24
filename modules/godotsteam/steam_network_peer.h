@@ -6,6 +6,8 @@
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/os/os.h"
 #include "steam/steam_api.h"
+
+#define MAX_STEAM_PACKET_SIZE 4096
 class SteamNetworkPeer : public NetworkedMultiplayerPeer {
 public:
 
@@ -26,13 +28,13 @@ private:
 	} lobbyState = LOBBY_STATE::DISCONNECTED;
 	
 	struct Packet {
-		void* data;
-		uint32 size;
-		uint64 from;
+		uint8_t data[MAX_STEAM_PACKET_SIZE];
+		int size;
+		CSteamID sender;
 		int channel;
 	};
-
-	List<Packet> receivedPackets = List<Packet>();
+	Packet* lastPacket = new Packet;
+	List<Packet*> receivedPackets = List<Packet*>();
 	// List<Packet> sentPackets;
 
 	ConnectionStatus connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;

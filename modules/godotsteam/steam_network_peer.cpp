@@ -72,14 +72,23 @@ void SteamNetworkPeer::createLobby(int lobby_type, int max_members){
 
 /* Specific to PacketPeer */
 Error SteamNetworkPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
-	WARN_PRINT("not yet implemented!");
-	return Error::ERR_PRINTER_ON_FIRE;
+	delete lastPacket;
+	lastPacket = receivedPackets.front()->get();
+	if(receivedPackets.size() != 0){
+		r_buffer_size = lastPacket->size;
+		*r_buffer = (const uint8_t *)(&lastPacket->data);
+		// r_buffer = lastPacket->data;
+		// r_buffer = a.alloc.mem;
+		receivedPackets.pop_front();
+		return OK;
+	}
+	return Error::ERR_DOES_NOT_EXIST;
 };
 
 Error SteamNetworkPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 	// String a;
 	// a.copy_from_unchecked(p_buffer,p_buffer_size);
-	steam->sendLobbyChatMsg()
+	// steam->sendLobbyChatMsg();
 	bool sentValid = SteamMatchmaking()->SendLobbyChatMsg(lobbyId, p_buffer, p_buffer_size);
 	if(sentValid){
 		return Error::OK;
@@ -118,8 +127,10 @@ void SteamNetworkPeer::set_target_peer(int p_peer_id) {
 };
 
 int SteamNetworkPeer::get_packet_peer() const {
-	WARN_PRINT("not yet implemented!");
-	return -1;
+	return receivedPackets.front()->get()->sender.GetAccountID();
+	if( isServer ){
+		return 1;
+	}
 };
 
 bool SteamNetworkPeer::is_server() const {
@@ -132,6 +143,8 @@ void SteamNetworkPeer::poll() {
 };
 
 int SteamNetworkPeer::get_unique_id() const {
+	return SteamUser()->GetSteamID().GetAccountID();
+	// return receivedPackets.front()->get()->sender.GetAccountID();
 	if(isServer){
 		return 1;
 	}
@@ -231,23 +244,25 @@ void SteamNetworkPeer::lobbyMessage(LobbyChatMsg_t* call_data){
 	if(lobbyId != call_data->m_ulSteamIDLobby){
 		return;
 	}
-	CSteamID user_id = call_data->m_ulSteamIDUser;
+	Packet* packet = new Packet;
+
+	packet->sender = call_data->m_ulSteamIDUser;
+	if(steam->getSteamID() == packet->sender){
+		return;
+	}
 	uint8 chat_type = call_data->m_eChatEntryType;
 	// Convert the chat type over
 	EChatEntryType type = (EChatEntryType)chat_type;
 	// Get the chat message data
-	char buffer[4096];
-	int size = SteamMatchmaking()->GetLobbyChatEntry(lobby_id, call_data->m_iChatID, &user_id, &buffer, 4096, &type);
-	uint64_t lobby = lobby_id.ConvertToUint64();
-	uint64_t user = user_id.ConvertToUint64();
-	String s = String::utf8(buffer,size);
-	PoolByteArray out;
-	out.resize(size);
-	for(int i = 0; i < size; i++){out.set(i,buffer[i]);}
+	packet->size = SteamMatchmaking()->GetLobbyChatEntry(lobbyId, call_data->m_iChatID, &sender, &(packet->data), MAX_STEAM_PACKET_SIZE, &type);
+	packet->channel = -1;
+
+	receivedPackets.push_back(packet);
+
 // 	lobbyMessage( lobby, user, out, chat_type);
 // }
 // void SteamNetworkPeer::lobbyMessage( uint64_t lobbyId, uint64_t user, PoolByteArray message, uint8 chatType){
 	// p.channel
-	WARN_PRINT("not yet implemented!");
-	TODO_PRINT("here I need to store messages. Packets are consumed with get_packet calls!");
+	// WARN_PRINT("not yet implemented!");
+	// TODO_PRINT("here I need to store messages. Packets are consumed with get_packet calls!");
 };

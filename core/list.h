@@ -236,10 +236,11 @@ public:
 		return n;
 	};
 
-	void pop_back() {
+	bool pop_back() {
 		if (_data && _data->last) {
-			erase(_data->last);
+			return erase(_data->last);
 		}
+		return false;
 	}
 
 	/**
@@ -274,10 +275,11 @@ public:
 		return n;
 	};
 
-	void pop_front() {
+	bool pop_front() {
 		if (_data && _data->first) {
-			erase(_data->first);
+			return erase(_data->first);
 		}
+		return false;
 	}
 
 	Element *insert_after(Element *p_element, const T &p_value) {
