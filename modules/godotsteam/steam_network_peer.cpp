@@ -155,8 +155,7 @@ int SteamNetworkPeer::get_unique_id() const {
 		return 1;
 	}
 	CSteamID steam_id = SteamUser()->GetSteamID();
-	WARN_PRINT("not yet implemented!");
-	return -1;
+	return steam_id.GetAccountID();
 };
 
 void SteamNetworkPeer::set_refuse_new_connections(bool p_enable) {
