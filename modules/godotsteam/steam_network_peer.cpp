@@ -27,8 +27,8 @@ SteamNetworkPeer::SteamNetworkPeer():
 		steam->connect( "lobby_match_list", this,"lobbyMatchList");
 		steam->connect( "lobby_kicked", this,"lobbyKicked");
 		steam->connect("steamworks_error",this,"continue");
-		steam->connect("join_game_requested",this,"joinGameRequested");
-		steam->connect("join_requested",this,"joinRequested");
+		// steam->connect("join_game_requested",this,"joinGameRequested");
+		// steam->connect("join_requested",this,"joinRequested");
 	}
 	this->connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
 };
@@ -48,10 +48,11 @@ void SteamNetworkPeer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("lobbyInvite"), &SteamNetworkPeer::lobbyInvite);
 	ClassDB::bind_method(D_METHOD("lobbyMatchList"), &SteamNetworkPeer::lobbyMatchList);
 	ClassDB::bind_method(D_METHOD("lobbyKicked"), &SteamNetworkPeer::lobbyKicked);
-	ClassDB::bind_method(D_METHOD("joinGameRequested"), &SteamNetworkPeer::joinGameRequested);
-	ClassDB::bind_method(D_METHOD("joinRequested"), &SteamNetworkPeer::joinRequested);
+	// ClassDB::bind_method(D_METHOD("joinGameRequested"), &SteamNetworkPeer::joinGameRequested);
+	// ClassDB::bind_method(D_METHOD("joinRequested"), &SteamNetworkPeer::joinRequested);
 
-	ClassDB::bind_method(D_METHOD("create_lobby", "lobby_type", "max_members"), &SteamNetworkPeer::createLobby, DEFVAL(FRIENDS_ONLY),DEFVAL(2));
+	ClassDB::bind_method(D_METHOD("create_server", "lobby_type", "max_members"), &SteamNetworkPeer::createServer, DEFVAL(FRIENDS_ONLY),DEFVAL(2));
+	ClassDB::bind_method(D_METHOD("create_client", "lobby_id"), &SteamNetworkPeer::createClient );
 
 	// peer_connected //pre existing signals
 	// peer_disconnectedf
@@ -75,10 +76,15 @@ void SteamNetworkPeer::_bind_methods() {
 };
 
 /* User Functions */
-void SteamNetworkPeer::createLobby(int lobby_type, int max_members){
+void SteamNetworkPeer::createServer(int lobby_type, int max_members){
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	Steam::get_singleton()->createLobby(lobby_type,max_members);
 }
+void SteamNetworkPeer::createClient(uint32_t lobbyId){
+	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
+	Steam::get_singleton()->joinLobby(lobbyId);
+}
+
 
 /* Specific to PacketPeer */
 Error SteamNetworkPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
@@ -279,10 +285,18 @@ void SteamNetworkPeer::lobbyMessage(LobbyChatMsg_t* call_data){
 };
 
 
-void SteamNetworkPeer::joinGameRequested(uint64_t lobbyId, String connect){
-	WARN_PRINT("not yet implemented!");
-}
+// void SteamNetworkPeer::joinGameRequested(uint64_t lobbyId, String connect){
+// 	WARN_PRINT("not yet implemented!");
+// }
 
-void SteamNetworkPeer::joinRequested(uint64_t lobby,uint64_t steam_id){
-	WARN_PRINT("not yet implemented!");
-}
+
+// void SteamNetworkPeer::joinRequested(GameLobbyJoinRequested_t* call_data){
+// 	CSteamID lobby_id = call_data->m_steamIDLobby;
+// 	uint64_t lobby = lobby_id.ConvertToUint64();
+// 	CSteamID friend_id = call_data->m_steamIDFriend;
+// 	uint64_t steam_id = friend_id.ConvertToUint64();
+// 	// emit_signal("join_requested", lobby, steam_id);
+// }
+// void SteamNetworkPeer::joinRequested(int lobby,int steam_id){
+// 	WARN_PRINT("not yet implemented!");
+// }

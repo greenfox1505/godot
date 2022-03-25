@@ -92,7 +92,8 @@ func clearNetwork():
 [sub_resource type="GDScript" id=5]
 script/source = "extends HBoxContainer
 
-
+func _ready():
+	Steam.connect(\"join_requested\",self,\"joinRequested\")
 
 
 func _on_host_pressed():
@@ -100,9 +101,6 @@ func _on_host_pressed():
 	var s = SteamNetworkPeer.new()
 	s.create_lobby(SteamNetworkPeer.FRIENDS_ONLY,2);
 	get_tree().network_peer = s
-	var status = yield(s,\"continue\")
-	print(status)
-	pass
 
 func _on_connect_pressed():
 	clearNetwork()
@@ -118,6 +116,11 @@ func clearNetwork():
 	get_tree().network_peer = null
 
 
+func joinRequested(lobbyId,steamId):
+	var s = SteamNetworkPeer.new()
+	s.create_client(lobbyId);
+	get_tree().network_peer = s;
+	
 "
 
 [sub_resource type="Animation" id=1]
