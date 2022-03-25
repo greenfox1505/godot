@@ -99,12 +99,13 @@ func _ready():
 func _on_host_pressed():
 	clearNetwork()
 	var s = SteamNetworkPeer.new()
-	s.create_lobby(SteamNetworkPeer.FRIENDS_ONLY,2);
+	s.create_lobby(SteamNetworkPeer.PUBLIC,2);
 	get_tree().network_peer = s
 
 func _on_connect_pressed():
-	clearNetwork()
-	get_tree().network_peer = SteamNetworkPeer.new()
+	pass
+#	clearNetwork()
+#	get_tree().network_peer = SteamNetworkPeer.new()
 
 func clearNetwork():
 	var p = get_tree().network_peer
