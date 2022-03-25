@@ -94,6 +94,7 @@ public:
 	void lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game);
 	void lobbyMatchList( Array lobbies);
 	void lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect);
+	void joinGameRequested(uint64_t lobbyId, String connect);
 
 	STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);
 	// void lobbyMessage( uint64_t lobbyId, uint64_t user, PoolByteArray message, uint8 chatType);

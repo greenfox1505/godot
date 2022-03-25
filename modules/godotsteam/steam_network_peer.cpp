@@ -27,6 +27,7 @@ SteamNetworkPeer::SteamNetworkPeer():
 		steam->connect( "lobby_match_list", this,"lobbyMatchList");
 		steam->connect( "lobby_kicked", this,"lobbyKicked");
 		steam->connect("steamworks_error",this,"continue");
+		steam->connect("join_game_requested",this,"joinGameRequested");
 	}
 	this->connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
 };
@@ -46,11 +47,12 @@ void SteamNetworkPeer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("lobbyInvite"), &SteamNetworkPeer::lobbyInvite);
 	ClassDB::bind_method(D_METHOD("lobbyMatchList"), &SteamNetworkPeer::lobbyMatchList);
 	ClassDB::bind_method(D_METHOD("lobbyKicked"), &SteamNetworkPeer::lobbyKicked);
+	ClassDB::bind_method(D_METHOD("joinGameRequested"), &SteamNetworkPeer::joinGameRequested);
 
 	ClassDB::bind_method(D_METHOD("create_lobby", "lobby_type", "max_members"), &SteamNetworkPeer::createLobby, DEFVAL(FRIENDS_ONLY),DEFVAL(2));
 
 	// peer_connected //pre existing signals
-	// peer_disconnected
+	// peer_disconnectedf
 	// connection_succeeded
 	// connection_failed
 	// server_disconnected
@@ -274,3 +276,8 @@ void SteamNetworkPeer::lobbyMessage(LobbyChatMsg_t* call_data){
 	// WARN_PRINT("not yet implemented!");
 	// TODO_PRINT("here I need to store messages. Packets are consumed with get_packet calls!");
 };
+
+
+void SteamNetworkPeer::joinGameRequested(uint64_t lobbyId, String connect){
+	WARN_PRINT("not yet implemented!");
+}
