@@ -205,7 +205,7 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_
 			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
 		}
 		else{
-			TODO_PRINT("lobbyGameCreated: todo, user data!");
+			TODO_PRINT("todo, user data!");
 		}
 	}
 	else 
