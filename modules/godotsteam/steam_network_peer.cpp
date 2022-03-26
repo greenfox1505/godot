@@ -218,9 +218,9 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8_t success, uint64_t lobbyId, uint6
 		}
 		List<uint32_t> playerList;
 		//update player connections
-		int playerCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+		int playerCount = SteamMatchmaking()->GetNumLobbyMembers((uint64)lobbyId);
 		for(int i = 0; i < playerCount; i++){
-			CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, playerCount);
+			CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex((uint64)lobbyId, playerCount);
 			// int memberSteamId = steam.getLobbyMemberByIndex(STEAM_LOBBY_ID, MEMBER)
 			playerList.push_back(lobbyMember.GetAccountID());
 		}
