@@ -46,6 +46,7 @@ private:
 	bool refuseConnections = false;
 
 	Dictionary lobbyData;
+	List<uint32> playerList;
 
 protected:
 	static void _bind_methods();
@@ -58,7 +59,7 @@ public:
 
 	/* User Functions */
 	void createServer(int lobby_type, int max_members);
-	void createClient(uint32_t lobbyId);
+	void createClient(uint64_t lobbyId);
 
 	enum LOBBY_TYPE {
 		PRIVATE = ELobbyType::k_ELobbyTypePrivate,

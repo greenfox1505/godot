@@ -99,7 +99,7 @@ func _ready():
 func _on_host_pressed():
 	clearNetwork()
 	var s = SteamNetworkPeer.new()
-	s.create_server(SteamNetworkPeer.PUBLIC,2);
+	s.create_server(SteamNetworkPeer.PUBLIC,32);
 	get_tree().network_peer = s
 
 func _on_connect_pressed():
@@ -229,6 +229,9 @@ margin_top = 18.0
 margin_right = 161.0
 margin_bottom = 38.0
 script = SubResource( 6 )
+__meta__ = {
+"_edit_group_": true
+}
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Normal"]
 margin_top = 3.0
@@ -255,6 +258,9 @@ margin_top = 42.0
 margin_right = 187.0
 margin_bottom = 62.0
 script = SubResource( 8 )
+__meta__ = {
+"_edit_group_": true
+}
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
 margin_top = 3.0
@@ -280,6 +286,9 @@ margin_top = 42.0
 margin_right = 161.0
 margin_bottom = 62.0
 script = SubResource( 5 )
+__meta__ = {
+"_edit_group_": true
+}
 
 [node name="Label2" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam"]
 margin_top = 3.0

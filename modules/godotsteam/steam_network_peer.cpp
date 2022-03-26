@@ -80,7 +80,7 @@ void SteamNetworkPeer::createServer(int lobby_type, int max_members){
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	Steam::get_singleton()->createLobby(lobby_type,max_members);
 }
-void SteamNetworkPeer::createClient(uint32_t lobbyId){
+void SteamNetworkPeer::createClient(uint64_t lobbyId){
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	Steam::get_singleton()->joinLobby(lobbyId);
 }
@@ -186,7 +186,7 @@ SteamNetworkPeer::ConnectionStatus SteamNetworkPeer::get_connection_status() con
 /* Callbacks */
 
 
-void SteamNetworkPeer::lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState){
+void SteamNetworkPeer::lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32_t chatState){
 	WARN_PRINT("not yet implemented!");
 };
 
@@ -204,7 +204,7 @@ void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
 	}
 };
 
-void SteamNetworkPeer::lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId){
+void SteamNetworkPeer::lobbyDataUpdate( uint8_t success, uint64_t lobbyId, uint64_t memberId){
 	if(this->lobbyId.ConvertToUint64() != lobbyId){
 		return;
 	}
@@ -216,14 +216,37 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_
 		else{
 			TODO_PRINT("todo, user data!");
 		}
+		List<uint32_t> playerList;
+		//update player connections
+		int playerCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+		for(int i = 0; i < playerCount; i++){
+			CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, playerCount);
+			// int memberSteamId = steam.getLobbyMemberByIndex(STEAM_LOBBY_ID, MEMBER)
+			playerList.push_back(lobbyMember.GetAccountID());
+		}
 	}
 	else 
 		ERR_PRINT("failed!");
 };
 
 void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response){
-	if(response != k_EChatRoomEnterResponseSuccess){
-		ERR_PRINT("Joined lobby failed!");
+	String output = "";
+	switch(response){
+		// k_EChatRoomEnterResponseSuccess: 			output = "k_EChatRoomEnterResponseSuccess"; break;
+		case k_EChatRoomEnterResponseDoesntExist: 		output = "k_EChatRoomEnterResponseDoesntExist"; break;
+		case k_EChatRoomEnterResponseNotAllowed: 		output = "k_EChatRoomEnterResponseNotAllowed"; break;
+		case k_EChatRoomEnterResponseFull: 				output = "k_EChatRoomEnterResponseFull"; break;
+		case k_EChatRoomEnterResponseError: 			output = "k_EChatRoomEnterResponseError"; break;
+		case k_EChatRoomEnterResponseBanned: 			output = "k_EChatRoomEnterResponseBanned"; break;
+		case k_EChatRoomEnterResponseLimited: 			output = "k_EChatRoomEnterResponseLimited"; break;
+		case k_EChatRoomEnterResponseClanDisabled: 		output = "k_EChatRoomEnterResponseClanDisabled"; break;
+		case k_EChatRoomEnterResponseCommunityBan: 		output = "k_EChatRoomEnterResponseCommunityBan"; break;
+		case k_EChatRoomEnterResponseMemberBlockedYou: 	output = "k_EChatRoomEnterResponseMemberBlockedYou"; break;
+		case k_EChatRoomEnterResponseYouBlockedMember: 	output = "k_EChatRoomEnterResponseYouBlockedMember"; break;
+		case k_EChatRoomEnterResponseRatelimitExceeded:	output = "k_EChatRoomEnterResponseRatelimitExceeded"; break;
+	};
+	if(output != ""){
+		ERR_PRINT("Joined lobby failed!" + output);
 		emit_signal("connection_failed");
 		return;
 	}
@@ -239,7 +262,7 @@ void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool
 	}
 };
 
-void SteamNetworkPeer::lobbyGameCreated( uint64_t lobbyId, uint64_t serverId, String serverIp, uint16 port){
+void SteamNetworkPeer::lobbyGameCreated( uint64_t lobbyId, uint64_t serverId, String serverIp, uint16_t port){
 	WARN_PRINT("not yet implemented!");
 };
 
@@ -251,7 +274,7 @@ void SteamNetworkPeer::lobbyMatchList( Array lobbies){
 	WARN_PRINT("not yet implemented!");
 };
 
-void SteamNetworkPeer::lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect){
+void SteamNetworkPeer::lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8_t dueToDisconnect){
 	WARN_PRINT("not yet implemented!");
 };
 
