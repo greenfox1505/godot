@@ -5,6 +5,9 @@
 [sub_resource type="GDScript" id=3]
 script/source = "extends Control
 
+export(NodePath) onready var animator = get_node(animator) as AnimationPlayer
+
+
 const port = 7777
 
 func _ready():	
@@ -20,7 +23,7 @@ func network_peer_connected(id):
 
 
 sync func play():
-	$CenterContainer/VBoxContainer/TextureButton/AnimationPlayer.play(\"qwer\")
+	animator.play(\"qwer\")
 "
 
 [sub_resource type="GDScript" id=4]
@@ -192,6 +195,7 @@ func _process(delta):
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = SubResource( 3 )
+animator = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/HBoxContainer/TextureButton/AnimationPlayer")
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 anchor_right = 1.0
