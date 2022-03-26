@@ -199,15 +199,15 @@ anchor_bottom = 1.0
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
 margin_left = 468.0
-margin_top = 273.0
+margin_top = 237.0
 margin_right = 811.0
-margin_bottom = 446.0
+margin_bottom = 482.0
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
 margin_left = 14.0
 margin_top = 14.0
 margin_right = 329.0
-margin_bottom = 159.0
+margin_bottom = 231.0
 custom_constants/margin_right = 15
 custom_constants/margin_top = 15
 custom_constants/margin_left = 15
@@ -217,7 +217,7 @@ custom_constants/margin_bottom = 15
 margin_left = 15.0
 margin_top = 15.0
 margin_right = 300.0
-margin_bottom = 130.0
+margin_bottom = 202.0
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 margin_left = 84.0
@@ -314,29 +314,33 @@ margin_bottom = 37.0
 text = "Overlay"
 
 [node name="pingBox" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-visible = false
 margin_top = 123.0
 margin_right = 285.0
-margin_bottom = 232.0
+margin_bottom = 187.0
 __meta__ = {
 "_edit_group_": true
 }
 
-[node name="ping" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox"]
 margin_right = 285.0
-margin_bottom = 37.0
+margin_bottom = 64.0
+
+[node name="ping" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/HBoxContainer"]
+margin_top = 13.0
+margin_right = 71.0
+margin_bottom = 50.0
+size_flags_vertical = 4
 text = "Ping"
 
-[node name="TextureButton" type="TextureButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox"]
-margin_left = 110.0
-margin_top = 45.0
-margin_right = 174.0
-margin_bottom = 109.0
-size_flags_horizontal = 4
+[node name="TextureButton" type="TextureButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/HBoxContainer"]
+margin_left = 150.0
+margin_right = 214.0
+margin_bottom = 64.0
+size_flags_horizontal = 6
 texture_normal = ExtResource( 1 )
 stretch_mode = 3
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/TextureButton"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/HBoxContainer/TextureButton"]
 playback_speed = 10.0
 anims/RESET = SubResource( 1 )
 anims/qwer = SubResource( 2 )
@@ -362,5 +366,5 @@ script = SubResource( 9 )
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam" method="_on_connect_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_host_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_connect_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/ping" to="." method="_on_ping_pressed"]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/HBoxContainer/ping" to="." method="_on_ping_pressed"]
 [connection signal="pressed" from="testYeild" to="testYeild" method="_on_testYeild_pressed"]
