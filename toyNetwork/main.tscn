@@ -91,11 +91,15 @@ func clearNetwork():
 [sub_resource type="GDScript" id=5]
 script/source = "extends HBoxContainer
 
+export(NodePath) onready var pingButton = get_node(pingButton) as Control
+
+
 func _ready():
 	Steam.connect(\"join_requested\",self,\"joinRequested\")
 
 
 func _on_host_pressed():
+	pingButton.visible = true
 	clearNetwork()
 	var s = SteamNetworkPeer.new()
 	s.create_server(SteamNetworkPeer.PUBLIC,32);
@@ -253,31 +257,31 @@ text = "Connect"
 
 [node name="PureSteam" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 visible = false
-margin_top = 42.0
-margin_right = 187.0
-margin_bottom = 62.0
+margin_top = 78.0
+margin_right = 328.0
+margin_bottom = 115.0
 script = SubResource( 8 )
 __meta__ = {
 "_edit_group_": true
 }
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
-margin_top = 3.0
-margin_right = 73.0
-margin_bottom = 17.0
+margin_top = 6.0
+margin_right = 126.0
+margin_bottom = 31.0
 size_flags_horizontal = 3
 text = "Pure Steam"
 
 [node name="host" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
-margin_left = 77.0
-margin_right = 119.0
-margin_bottom = 20.0
+margin_left = 134.0
+margin_right = 208.0
+margin_bottom = 37.0
 text = "Host"
 
 [node name="connect" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
-margin_left = 123.0
-margin_right = 187.0
-margin_bottom = 20.0
+margin_left = 216.0
+margin_right = 328.0
+margin_bottom = 37.0
 text = "Connect"
 
 [node name="Steam" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
@@ -288,27 +292,28 @@ script = SubResource( 5 )
 __meta__ = {
 "_edit_group_": true
 }
+pingButton = NodePath("../pingBox")
 
 [node name="Label2" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam"]
 margin_top = 6.0
-margin_right = 83.0
+margin_right = 87.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
 text = "Steam"
 
 [node name="host" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam"]
-margin_left = 91.0
-margin_right = 165.0
+margin_left = 95.0
+margin_right = 169.0
 margin_bottom = 37.0
 text = "Host"
 
 [node name="connect" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam"]
-margin_left = 173.0
+margin_left = 177.0
 margin_right = 285.0
 margin_bottom = 37.0
-text = "Connect"
+text = "Overlay"
 
-[node name="WorkChannel" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="pingBox" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 visible = false
 margin_top = 123.0
 margin_right = 285.0
@@ -317,12 +322,12 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="ping" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel"]
+[node name="ping" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox"]
 margin_right = 285.0
 margin_bottom = 37.0
 text = "Ping"
 
-[node name="TextureButton" type="TextureButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel"]
+[node name="TextureButton" type="TextureButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox"]
 margin_left = 110.0
 margin_top = 45.0
 margin_right = 174.0
@@ -331,7 +336,7 @@ size_flags_horizontal = 4
 texture_normal = ExtResource( 1 )
 stretch_mode = 3
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel/TextureButton"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/TextureButton"]
 playback_speed = 10.0
 anims/RESET = SubResource( 1 )
 anims/qwer = SubResource( 2 )
@@ -357,5 +362,5 @@ script = SubResource( 9 )
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam" method="_on_connect_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_host_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_connect_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel/ping" to="." method="_on_ping_pressed"]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/ping" to="." method="_on_ping_pressed"]
 [connection signal="pressed" from="testYeild" to="testYeild" method="_on_testYeild_pressed"]
