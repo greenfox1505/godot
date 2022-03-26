@@ -191,7 +191,7 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t* call_data){
 		return;
 	}
 	CSteamID userChanged = CSteamID(call_data->m_ulSteamIDUserChanged);
-	switch(call_data->m_rgfChatMemberStateChange){
+	switch(CHAT_CHANGE(call_data->m_rgfChatMemberStateChange)){
 		case CHAT_CHANGE::ENTERED:
 			if( userChanged != SteamUser()->GetSteamID()){
 				emit_signal("peer_connected", userChanged.GetAccountID() );
