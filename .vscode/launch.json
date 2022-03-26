@@ -27,7 +27,7 @@
             "args": [
                 "--editor",
                 "--path",
-                "../toyNetwork"
+                "toyNetwork",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -45,7 +45,7 @@
             // To run the project instead of editing it, remove the "--editor" argument.
             "args": [
                 "--path",
-                "../toyNetwork",
+                "toyNetwork",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
