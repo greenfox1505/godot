@@ -39,15 +39,15 @@ SteamNetworkPeer::~SteamNetworkPeer()
 
 void SteamNetworkPeer::_bind_methods() {
 	// ClassDB::bind_method(D_METHOD())
-	//I hate this. None of the fucntions should be called externally...
-	ClassDB::bind_method(D_METHOD("lobbyChatUpdate"), &SteamNetworkPeer::lobbyChatUpdate);
-	ClassDB::bind_method(D_METHOD("lobbyCreated"), &SteamNetworkPeer::lobbyCreated);
-	ClassDB::bind_method(D_METHOD("lobbyDataUpdate"), &SteamNetworkPeer::lobbyDataUpdate);
-	ClassDB::bind_method(D_METHOD("lobbyJoined"), &SteamNetworkPeer::lobbyJoined);
-	ClassDB::bind_method(D_METHOD("lobbyGameCreated"), &SteamNetworkPeer::lobbyGameCreated);
-	ClassDB::bind_method(D_METHOD("lobbyInvite"), &SteamNetworkPeer::lobbyInvite);
-	ClassDB::bind_method(D_METHOD("lobbyMatchList"), &SteamNetworkPeer::lobbyMatchList);
-	ClassDB::bind_method(D_METHOD("lobbyKicked"), &SteamNetworkPeer::lobbyKicked);
+	//I hate this. None of the fucntions should be called externally from script...
+	ClassDB::bind_method(D_METHOD("lobbyChatUpdate","lobbyId", "changedId", "makingChangeId", "chatState"), &SteamNetworkPeer::lobbyChatUpdate);
+	ClassDB::bind_method(D_METHOD("lobbyCreated","connect", "lobbyId"), &SteamNetworkPeer::lobbyCreated);
+	ClassDB::bind_method(D_METHOD("lobbyDataUpdate","success", "lobbyId", "memberId"), &SteamNetworkPeer::lobbyDataUpdate);
+	ClassDB::bind_method(D_METHOD("lobbyJoined","lobbyId", "permissions", "locked", "response"), &SteamNetworkPeer::lobbyJoined);
+	ClassDB::bind_method(D_METHOD("lobbyGameCreated", "lobbyId",  "serverId",  "serverIp",  "port"), &SteamNetworkPeer::lobbyGameCreated);
+	ClassDB::bind_method(D_METHOD("lobbyInvite","inviter", "lobbyId", "game"), &SteamNetworkPeer::lobbyInvite);
+	ClassDB::bind_method(D_METHOD("lobbyMatchList","lobbies"), &SteamNetworkPeer::lobbyMatchList);
+	ClassDB::bind_method(D_METHOD("lobbyKicked","lobbyId", "adminId", "dueToDisconnect"), &SteamNetworkPeer::lobbyKicked);
 	// ClassDB::bind_method(D_METHOD("joinGameRequested"), &SteamNetworkPeer::joinGameRequested);
 	// ClassDB::bind_method(D_METHOD("joinRequested"), &SteamNetworkPeer::joinRequested);
 
@@ -210,23 +210,52 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8_t success, uint64_t lobbyId, uint6
 	}
 	else if(success == 1){
 		if(lobbyId == memberId){
-			lobbyData = steam->getAllLobbyData(lobbyId);
 			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
 		}
 		else{
 			TODO_PRINT("todo, user data!");
-			List<uint32_t> playerList;
-			//update player connections
-			int playerCount = SteamMatchmaking()->GetNumLobbyMembers((uint64)lobbyId);
-			for(int i = 0; i < playerCount; i++){
-				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex((uint64)lobbyId, playerCount);
-				// int memberSteamId = steam.getLobbyMemberByIndex(STEAM_LOBBY_ID, MEMBER)
-				playerList.push_back(lobbyMember.GetAccountID());
-			}
 		}
+		updateLobbyData();
 	}
 	else 
 		ERR_PRINT("failed!");
+};
+const int MAX_LOBBY_KEY_LENGTH = 255;
+const int CHAT_METADATA_MAX = 8192;
+void SteamNetworkPeer::updateLobbyData(){
+	//set all lobby data
+	Dictionary data;
+	int dataCount = SteamMatchmaking()->GetLobbyDataCount(lobbyId);
+	char key;
+	char value;
+	for(int i = 0; i < dataCount; i++){
+		bool success = SteamMatchmaking()->GetLobbyDataByIndex(lobbyId, i, &key, MAX_LOBBY_KEY_LENGTH, &value, CHAT_METADATA_MAX);
+		if(success){
+			data["index"] = i;
+			data["key"] = key;
+			data["value"] = value;
+		}
+	}
+	lobbyData = data;
+	List<uint32_t> oldPlayerList = playerList, newPlayerList;
+	playerList = List<uint32_t>();
+	//update player connections
+	int playerCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+	for(int i = 0; i < playerCount; i++){
+		CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, playerCount);
+		// int memberSteamId = steam.getLobbyMemberByIndex(STEAM_LOBBY_ID, MEMBER)
+		newPlayerList.push_back(lobbyMember.GetAccountID());
+	}
+
+	//hey so I need to figure out who joined and who is old...
+
+	// for( int newIndex = 0; newIndex < newPlayerList.size(); newIndex++ ){
+	// 	for( int oldIndex = 0; oldIndex < newPlayerList.size(); oldIndex++ ){
+	// 		if( oldPlayerList[oldIndex] == newPlayerList[oldIndex]){
+	// 			playerList.push_back(oldPlayerList[oldIndex]);
+	// 		}
+	// 	}
+	// }
 };
 
 void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response){

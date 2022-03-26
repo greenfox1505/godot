@@ -48,6 +48,8 @@ private:
 	Dictionary lobbyData;
 	List<uint32> playerList;
 
+	void updateLobbyData();
+
 protected:
 	static void _bind_methods();
 
