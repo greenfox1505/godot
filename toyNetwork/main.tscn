@@ -7,8 +7,7 @@ script/source = "extends Control
 
 const port = 7777
 
-func _ready():
-	
+func _ready():	
 	get_tree().connect(\"network_peer_connected\",self,\"network_peer_connected\")
 
 func _on_ping_pressed():
@@ -16,7 +15,7 @@ func _on_ping_pressed():
 
 
 func network_peer_connected(id):
-	pass
+	print('peer connected!:' + id)
 #	(get_tree().network_peer as NetworkedMultiplayerENet).set_peer_timeout(id,INF,-INF,INF)
 
 
@@ -196,15 +195,15 @@ anchor_bottom = 1.0
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
 margin_left = 468.0
-margin_top = 215.0
+margin_top = 273.0
 margin_right = 811.0
-margin_bottom = 505.0
+margin_bottom = 446.0
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
 margin_left = 14.0
 margin_top = 14.0
 margin_right = 329.0
-margin_bottom = 276.0
+margin_bottom = 159.0
 custom_constants/margin_right = 15
 custom_constants/margin_top = 15
 custom_constants/margin_left = 15
@@ -214,7 +213,7 @@ custom_constants/margin_bottom = 15
 margin_left = 15.0
 margin_top = 15.0
 margin_right = 300.0
-margin_bottom = 247.0
+margin_bottom = 130.0
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 margin_left = 84.0
@@ -309,22 +308,30 @@ margin_right = 285.0
 margin_bottom = 37.0
 text = "Connect"
 
-[node name="ping" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="WorkChannel" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+visible = false
 margin_top = 123.0
 margin_right = 285.0
-margin_bottom = 160.0
+margin_bottom = 232.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="ping" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel"]
+margin_right = 285.0
+margin_bottom = 37.0
 text = "Ping"
 
-[node name="TextureButton" type="TextureButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="TextureButton" type="TextureButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel"]
 margin_left = 110.0
-margin_top = 168.0
+margin_top = 45.0
 margin_right = 174.0
-margin_bottom = 232.0
+margin_bottom = 109.0
 size_flags_horizontal = 4
 texture_normal = ExtResource( 1 )
 stretch_mode = 3
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TextureButton"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel/TextureButton"]
 playback_speed = 10.0
 anims/RESET = SubResource( 1 )
 anims/qwer = SubResource( 2 )
@@ -350,5 +357,5 @@ script = SubResource( 9 )
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam" method="_on_connect_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_host_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_connect_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ping" to="." method="_on_ping_pressed"]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/WorkChannel/ping" to="." method="_on_ping_pressed"]
 [connection signal="pressed" from="testYeild" to="testYeild" method="_on_testYeild_pressed"]

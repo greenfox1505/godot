@@ -13,7 +13,9 @@
 
 
 SteamNetworkPeer::SteamNetworkPeer():
-	callbackLobbyMessage(this, &SteamNetworkPeer::lobbyMessage)
+	callbackLobbyMessage(this, &SteamNetworkPeer::lobbyMessage),
+	callbackLobbyChatUpdate(this, &SteamNetworkPeer::lobbyChatUpdate)
+
 {
 	steam = Steam::get_singleton();
 	// s->set_steam_network_peer(this);
@@ -40,7 +42,6 @@ SteamNetworkPeer::~SteamNetworkPeer()
 void SteamNetworkPeer::_bind_methods() {
 	// ClassDB::bind_method(D_METHOD())
 	//I hate this. None of the fucntions should be called externally from script...
-	ClassDB::bind_method(D_METHOD("lobbyChatUpdate","lobbyId", "changedId", "makingChangeId", "chatState"), &SteamNetworkPeer::lobbyChatUpdate);
 	ClassDB::bind_method(D_METHOD("lobbyCreated","connect", "lobbyId"), &SteamNetworkPeer::lobbyCreated);
 	ClassDB::bind_method(D_METHOD("lobbyDataUpdate","success", "lobbyId", "memberId"), &SteamNetworkPeer::lobbyDataUpdate);
 	ClassDB::bind_method(D_METHOD("lobbyJoined","lobbyId", "permissions", "locked", "response"), &SteamNetworkPeer::lobbyJoined);
@@ -63,11 +64,11 @@ void SteamNetworkPeer::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("continue", PropertyInfo(Variant::STRING, "message")));
 	ADD_SIGNAL(MethodInfo("lobbyEvent", PropertyInfo(Variant::STRING, "message")));
 
-	BIND_CONSTANT(DISCONNECTED);
-	BIND_CONSTANT(HOST_PENDING);
-	BIND_CONSTANT(HOST);
-	BIND_CONSTANT(CLIENT_PENDING);
-	BIND_CONSTANT(CLIENT);
+	// BIND_CONSTANT(DISCONNECTED);
+	// BIND_CONSTANT(HOST_PENDING);
+	// BIND_CONSTANT(HOST);
+	// BIND_CONSTANT(CLIENT_PENDING);
+	// BIND_CONSTANT(CLIENT);
 	BIND_CONSTANT(PRIVATE);
 	BIND_CONSTANT(FRIENDS_ONLY);
 	BIND_CONSTANT(PUBLIC);
@@ -185,9 +186,26 @@ SteamNetworkPeer::ConnectionStatus SteamNetworkPeer::get_connection_status() con
 
 /* Callbacks */
 
-
-void SteamNetworkPeer::lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32_t chatState){
-	WARN_PRINT("not yet implemented!");
+void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t* call_data){
+	if(lobbyId != call_data->m_ulSteamIDLobby){
+		return;
+	}
+	CSteamID userChanged = CSteamID(call_data->m_ulSteamIDUserChanged);
+	switch(call_data->m_rgfChatMemberStateChange){
+		case CHAT_CHANGE::ENTERED:
+			if( userChanged != SteamUser()->GetSteamID()){
+				emit_signal("peer_connected", userChanged.GetAccountID() );
+			}
+			break;
+		case CHAT_CHANGE::LEFT:
+		case CHAT_CHANGE::DISCONNECTED:
+		case CHAT_CHANGE::KICKED:
+		case CHAT_CHANGE::BANNED:
+			if( userChanged != SteamUser()->GetSteamID()){
+				emit_signal("peer_disconnected", userChanged.GetAccountID() );
+			}
+			break;
+	}
 };
 
 void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
@@ -196,7 +214,7 @@ void SteamNetworkPeer::lobbyCreated( int connect, uint64_t lobbyId){
 		connectionStatus = ConnectionStatus::CONNECTION_CONNECTED;
 		isServer = true;
 		// emit_signal("connection_succeeded");
-		// emit_signal("peer_connected",1);
+	// emit_signal("peer_connected",1);
 	}
 	else{
 		ERR_PRINT("ERROR ON LOBBY CREATION!");
@@ -211,11 +229,13 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8_t success, uint64_t lobbyId, uint6
 	else if(success == 1){
 		if(lobbyId == memberId){
 			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
+			//update the entire lobby
+		TODO_PRINT("Update entire lobby!");
 		}
 		else{
 			TODO_PRINT("todo, user data!");
 		}
-		updateLobbyData();
+	updateLobbyData();
 	}
 	else 
 		ERR_PRINT("failed!");
@@ -262,19 +282,19 @@ void SteamNetworkPeer::lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool
 	String output = "";
 	switch(response){
 		// k_EChatRoomEnterResponseSuccess: 			output = "k_EChatRoomEnterResponseSuccess"; break;
-		case k_EChatRoomEnterResponseDoesntExist: 		output = "k_EChatRoomEnterResponseDoesntExist"; break;
-		case k_EChatRoomEnterResponseNotAllowed: 		output = "k_EChatRoomEnterResponseNotAllowed"; break;
-		case k_EChatRoomEnterResponseFull: 				output = "k_EChatRoomEnterResponseFull"; break;
-		case k_EChatRoomEnterResponseError: 			output = "k_EChatRoomEnterResponseError"; break;
-		case k_EChatRoomEnterResponseBanned: 			output = "k_EChatRoomEnterResponseBanned"; break;
-		case k_EChatRoomEnterResponseLimited: 			output = "k_EChatRoomEnterResponseLimited"; break;
-		case k_EChatRoomEnterResponseClanDisabled: 		output = "k_EChatRoomEnterResponseClanDisabled"; break;
-		case k_EChatRoomEnterResponseCommunityBan: 		output = "k_EChatRoomEnterResponseCommunityBan"; break;
-		case k_EChatRoomEnterResponseMemberBlockedYou: 	output = "k_EChatRoomEnterResponseMemberBlockedYou"; break;
-		case k_EChatRoomEnterResponseYouBlockedMember: 	output = "k_EChatRoomEnterResponseYouBlockedMember"; break;
-		case k_EChatRoomEnterResponseRatelimitExceeded:	output = "k_EChatRoomEnterResponseRatelimitExceeded"; break;
+		case k_EChatRoomEnterResponseDoesntExist: 		output = "Doesn't Exist";		break;
+		case k_EChatRoomEnterResponseNotAllowed: 		output = "Not Allowed";			break;
+		case k_EChatRoomEnterResponseFull: 				output = "Full";				break;
+		case k_EChatRoomEnterResponseError: 			output = "Error";				break;
+		case k_EChatRoomEnterResponseBanned: 			output = "Banned";				break;
+		case k_EChatRoomEnterResponseLimited: 			output = "Limited";				break;
+		case k_EChatRoomEnterResponseClanDisabled: 		output = "Clan Disabled";		break;
+		case k_EChatRoomEnterResponseCommunityBan: 		output = "Community Ban";		break;
+		case k_EChatRoomEnterResponseMemberBlockedYou: 	output = "Member Blocked You";	break;
+		case k_EChatRoomEnterResponseYouBlockedMember: 	output = "You Blocked Member";	break;
+		case k_EChatRoomEnterResponseRatelimitExceeded:	output = "Ratelimit Exceeded";	break;
 	};
-	if(output != ""){
+	if(output.length() != 0){
 		ERR_PRINT("Joined lobby failed!" + output);
 		emit_signal("connection_failed");
 		return;

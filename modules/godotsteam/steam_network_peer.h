@@ -26,7 +26,15 @@ private:
 		CLIENT_PENDING,
 		CLIENT
 	} lobbyState = LOBBY_STATE::DISCONNECTED;
-	
+
+	enum class CHAT_CHANGE {
+		ENTERED = k_EChatMemberStateChangeEntered,
+		LEFT = k_EChatMemberStateChangeLeft,
+		DISCONNECTED = k_EChatMemberStateChangeDisconnected,
+		KICKED = k_EChatMemberStateChangeKicked,
+		BANNED = k_EChatMemberStateChangeBanned
+	};
+
 	struct Packet {
 		uint8_t data[MAX_STEAM_PACKET_SIZE];
 		int size;
@@ -102,6 +110,8 @@ public:
 	void joinRequested(int lobby,int steam_id);
 
 	STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);
+	STEAM_CALLBACK(SteamNetworkPeer, lobbyChatUpdate, LobbyChatUpdate_t, callbackLobbyChatUpdate);
+
 	// STEAM_CALLBACK(SteamNetworkPeer, joinRequested, GameLobbyJoinRequested_t, callbackJoinRequested);
 	// STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);
 	// void lobbyMessage( uint64_t lobbyId, uint64_t user, PoolByteArray message, uint8 chatType);
