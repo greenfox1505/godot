@@ -1,0 +1,60 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach To Game",
+            "type": "lldb",
+            "request": "attach",
+            "program": "${workspaceFolder}/bin/godot.x11.tools.64",
+            "stopAtEntry": false,
+            // "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
+            // "processName":"godot.x11.tools.64 .* debugMeDamnit",
+            "processId":"${command:pickProcess}",
+        },
+        {
+            "name": "Debug Project",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/godot.x11.tools.64",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [
+                "--editor",
+                "--path",
+                "toyNetwork"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"LD_LIBRARY_PATH": "${workspaceFolder}/modules/godotsteam/sdk/redistributable_bin/linux64/libsteam_api.so"}
+            ],
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
+            "preLaunchTask": "build",
+        },
+        {
+            "name": "Debug Game",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/godot.x11.tools.64",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [
+                "--path",
+                "toyNetwork",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
+            "preLaunchTask": "build"
+        },
+    ]
+}
