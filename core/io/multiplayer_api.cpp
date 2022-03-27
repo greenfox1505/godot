@@ -256,6 +256,8 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
 		Map<int, PathGetCache>::Element *E = path_get_cache.find(p_from);
 		ERR_FAIL_COND_V_MSG(!E, nullptr, "Invalid packet received. Requests invalid peer cache.");
 
+		auto a = E->get();
+
 		Map<int, PathGetCache::NodeInfo>::Element *F = E->get().nodes.find(id);
 		ERR_FAIL_COND_V_MSG(!F, nullptr, "Invalid packet received. Unabled to find requested cached node.");
 

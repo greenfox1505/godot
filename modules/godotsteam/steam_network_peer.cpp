@@ -20,7 +20,7 @@ SteamNetworkPeer::SteamNetworkPeer():
 	steam = Steam::get_singleton();
 	// s->set_steam_network_peer(this);
 	if( steam != nullptr){
-		steam->connect( "lobby_chat_update", this,"lobbyChatUpdate");
+		// steam->connect( "lobby_chat_update", this,"lobbyChatUpdate");
 		steam->connect( "lobby_created", this,"lobbyCreated");
 		steam->connect( "lobby_data_update", this,"lobbyDataUpdate");
 		steam->connect( "lobby_joined", this,"lobbyJoined");
@@ -131,6 +131,13 @@ int SteamNetworkPeer::get_available_packet_count() const {
 /* Specific to NetworkedMultiplayerPeer */
 void SteamNetworkPeer::set_transfer_mode(SteamNetworkPeer::TransferMode p_mode) {
 	this->transferMode = p_mode;
+	switch(p_mode){
+		case SteamNetworkPeer::TransferMode::TRANSFER_MODE_UNRELIABLE:
+		case SteamNetworkPeer::TransferMode::TRANSFER_MODE_UNRELIABLE_ORDERED:
+			break;
+		case SteamNetworkPeer::TransferMode::TRANSFER_MODE_RELIABLE:
+			break;
+	}
 	TODO_PRINT("todo set the steam thing for these!");
 };
 
@@ -230,12 +237,17 @@ void SteamNetworkPeer::lobbyDataUpdate( uint8_t success, uint64_t lobbyId, uint6
 		if(lobbyId == memberId){
 			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
 			//update the entire lobby
-		TODO_PRINT("Update entire lobby!");
+			int playerCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+			for(int i = 0; i < playerCount; i++){
+				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, playerCount);
+				emit_signal("peer_connected",lobbyMember.GetAccountID());
+			}
+			// TODO_PRINT("Update entire lobby!");
 		}
 		else{
 			TODO_PRINT("todo, user data!");
 		}
-	updateLobbyData();
+		updateLobbyData();
 	}
 	else 
 		ERR_PRINT("failed!");

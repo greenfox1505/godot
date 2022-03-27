@@ -12,6 +12,10 @@ const port = 7777
 
 func _ready():	
 	get_tree().connect(\"network_peer_connected\",self,\"network_peer_connected\")
+	for i in OS.get_cmdline_args():
+		pass
+		
+		
 
 func _on_ping_pressed():
 	rpc(\"play\")
