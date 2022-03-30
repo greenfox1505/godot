@@ -304,7 +304,7 @@ void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64
 			//update the entire lobby
 			int playerCount = SteamMatchmaking()->GetNumLobbyMembers(this->lobbyId);
 			for (int i = 0; i < playerCount; i++) {
-				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(this->lobbyId, playerCount);
+				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(this->lobbyId, i);
 				if(lobbyMember != SteamUser()->GetSteamID()){
 					auto a = addConnectionPeer(lobbyMember);
 					emit_signal("peer_connected", a.godotId);
