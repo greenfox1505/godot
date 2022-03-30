@@ -1,12 +1,12 @@
 #ifndef SIMPLE_STEAM_NETWORK_PEER_H
 #define SIMPLE_STEAM_NETWORK_PEER_H
 
-#include<map>
+#include <map>
 
-#include "core/resource.h"
-#include "godotsteam.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/os/os.h"
+#include "core/resource.h"
+#include "godotsteam.h"
 #include "steam/steam_api.h"
 #include "steam/steamnetworkingtypes.h"
 #include "steam_id.h"
@@ -15,7 +15,6 @@
 
 class SteamNetworkPeer : public NetworkedMultiplayerPeer {
 public:
-
 	typedef NetworkedMultiplayerPeer::ConnectionStatus ConnectionStatus;
 	typedef NetworkedMultiplayerPeer::TransferMode TransferMode;
 	enum LOBBY_STATE {
@@ -42,10 +41,8 @@ public:
 
 private:
 	GDCLASS(SteamNetworkPeer, NetworkedMultiplayerPeer);
-	
-	Steam* steam;
 
-
+	Steam *steam;
 
 	struct Packet {
 		uint8_t data[MAX_STEAM_PACKET_SIZE];
@@ -53,8 +50,8 @@ private:
 		CSteamID sender;
 		int channel;
 	};
-	Packet* lastPacket = new Packet;
-	List<Packet*> receivedPackets = List<Packet*>();
+	Packet *lastPacket = new Packet;
+	List<Packet *> receivedPackets = List<Packet *>();
 	// List<Packet> sentPackets;
 
 	ConnectionStatus connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
@@ -68,6 +65,8 @@ private:
 	int targetPeer = 0; //0 means all
 
 	CSteamID lobbyId;
+	CSteamID lobbyOwner;
+
 	bool isServer = false;
 	bool refuseConnections = false;
 
@@ -80,12 +79,58 @@ private:
 		CSteamID steamId;
 		uint32_t godotId;
 		SteamNetworkingIdentity networkIdentity;
+		ConnectionData(const CSteamID &steamId, const uint32_t &godotId) {
+			this->steamId = steamId;
+			this->godotId = godotId;
+			networkIdentity = SteamNetworkingIdentity();
+			networkIdentity.SetSteamID(steamId);
+		}
+		ConnectionData(){};
+		bool operator==(const ConnectionData& data){
+			return godotId = data.godotId;
+		}
+		// bool operator==(const ConnectionData& data){
+		// 	return godotId = data.godotId;
+		// }
 	};
 
-	List<const ConnectionData> connections;
-	ConnectionData* activeConnection;
+	List<ConnectionData> connections; //list is a linked list and a bad data structure for this. todo fix
+	const ConnectionData *activeConnection;
+
+	const ConnectionData *getConnectionBySteamId(const CSteamID &steamId) {
+		for (int i = 0; i < connections.size(); i++) {
+			if (connections[i].steamId == steamId) {
+				return &connections[i];
+			}
+		}
+		return nullptr;
+	}
+	const ConnectionData *getConnectionByGodotId(const uint32_t &godotId) {
+		for (int i = 0; i < connections.size(); i++) {
+			if (connections[i].godotId == godotId) {
+				return &connections[i];
+			}
+		}
+		return nullptr;
+	}
 	// Map<CSteamID,ConnectionData*> steamToGdnet;
 	// Map<uint32_t,ConnectionData*> gdnetToSteam;
+	const ConnectionData& addConnectionPeer(const CSteamID &steamId) {
+		int godotId = steamId == lobbyOwner ? 1 : steamId.GetAccountID(); //maybe this account ID needs to be something else?
+		connections.push_back(ConnectionData(steamId,godotId));
+		return connections.back()->get();
+	}
+	void removeConnectionPeer(const CSteamID &steamId) {
+		auto a = connections.front();
+		while(a){
+			if(a->get().steamId == steamId){
+				connections.erase(a);
+				return;
+			}else{
+				a = a->next();
+			}
+		}
+	}
 
 protected:
 	static void _bind_methods();
@@ -93,8 +138,6 @@ protected:
 public:
 	SteamNetworkPeer();
 	~SteamNetworkPeer();
-
-	
 
 	/* Specific to SteamNetworkPeer */
 	void createServer(int lobby_type, int max_members);
@@ -123,13 +166,13 @@ public:
 
 	/* Steam Callbacks */
 	// void lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState);
-	void lobbyCreated( int connect, uint64_t lobbyId);
-	void lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId);
-	void lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response);
-	void lobbyGameCreated( uint64_t lobbyId, uint64_t serverId, String serverIp, uint16 port);
-	void lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game);
-	void lobbyMatchList( Array lobbies);
-	void lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect);
+	void lobbyCreated(int connect, uint64_t lobbyId);
+	void lobbyDataUpdate(uint8 success, uint64_t lobbyId, uint64_t memberId);
+	void lobbyJoined(uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response);
+	void lobbyGameCreated(uint64_t lobbyId, uint64_t serverId, String serverIp, uint16 port);
+	void lobbyInvite(uint64_t inviter, uint64_t lobbyId, uint64_t game);
+	void lobbyMatchList(Array lobbies);
+	void lobbyKicked(uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect);
 	// void joinGameRequested(uint64_t lobbyId, String connect);
 	// void joinRequested(int lobby,int steam_id);
 
