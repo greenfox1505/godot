@@ -305,9 +305,7 @@ void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64
 			int playerCount = SteamMatchmaking()->GetNumLobbyMembers(this->lobbyId);
 			for (int i = 0; i < playerCount; i++) {
 				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(this->lobbyId, i);
-				if(lobbyMember != SteamUser()->GetSteamID()){
-					addConnectionPeer(lobbyMember);
-				}
+				addConnectionPeer(lobbyMember);
 			}
 			// TODO_PRINT("Update entire lobby!");
 		} else {
