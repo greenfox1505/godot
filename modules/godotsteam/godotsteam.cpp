@@ -3812,10 +3812,10 @@ Dictionary Steam::getAllLobbyData(uint64_t steam_lobby_id){
 	}
 	CSteamID lobby_id = (uint64)steam_lobby_id;
 	int dataCount = SteamMatchmaking()->GetLobbyDataCount(lobby_id);
-	char key;
-	char value;
+	char key[MAX_LOBBY_KEY_LENGTH];
+	char value[CHAT_METADATA_MAX];
 	for(int i = 0; i < dataCount; i++){
-		bool success = SteamMatchmaking()->GetLobbyDataByIndex(lobby_id, i, &key, MAX_LOBBY_KEY_LENGTH, &value, CHAT_METADATA_MAX);
+		bool success = SteamMatchmaking()->GetLobbyDataByIndex(lobby_id, i, key, MAX_LOBBY_KEY_LENGTH, value, CHAT_METADATA_MAX);
 		if(success){
 			data["index"] = i;
 			data["key"] = key;
