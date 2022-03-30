@@ -1,24 +1,23 @@
 #ifndef SIMPLE_STEAM_NETWORK_PEER_H
 #define SIMPLE_STEAM_NETWORK_PEER_H
 
+#include<map>
+
 #include "core/resource.h"
 #include "godotsteam.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/os/os.h"
 #include "steam/steam_api.h"
+#include "steam/steamnetworkingtypes.h"
+#include "steam_id.h"
 
-#define MAX_STEAM_PACKET_SIZE 4096
+#define MAX_STEAM_PACKET_SIZE k_cbMaxSteamNetworkingSocketsMessageSizeSend
+
 class SteamNetworkPeer : public NetworkedMultiplayerPeer {
 public:
 
 	typedef NetworkedMultiplayerPeer::ConnectionStatus ConnectionStatus;
 	typedef NetworkedMultiplayerPeer::TransferMode TransferMode;
-
-private:
-	GDCLASS(SteamNetworkPeer, NetworkedMultiplayerPeer);
-	
-	Steam* steam;
-
 	enum LOBBY_STATE {
 		DISCONNECTED = -1,
 		HOST_PENDING,
@@ -26,7 +25,6 @@ private:
 		CLIENT_PENDING,
 		CLIENT
 	} lobbyState = LOBBY_STATE::DISCONNECTED;
-
 	enum class CHAT_CHANGE {
 		ENTERED = k_EChatMemberStateChangeEntered,
 		LEFT = k_EChatMemberStateChangeLeft,
@@ -34,6 +32,20 @@ private:
 		KICKED = k_EChatMemberStateChangeKicked,
 		BANNED = k_EChatMemberStateChangeBanned
 	};
+	enum LOBBY_TYPE {
+		PRIVATE = ELobbyType::k_ELobbyTypePrivate,
+		FRIENDS_ONLY = ELobbyType::k_ELobbyTypeFriendsOnly,
+		PUBLIC = ELobbyType::k_ELobbyTypePublic,
+		INVISIBLE = ELobbyType::k_ELobbyTypeInvisible,
+		PRIVATE_UNIQUE = ELobbyType::k_ELobbyTypePrivateUnique,
+	};
+
+private:
+	GDCLASS(SteamNetworkPeer, NetworkedMultiplayerPeer);
+	
+	Steam* steam;
+
+
 
 	struct Packet {
 		uint8_t data[MAX_STEAM_PACKET_SIZE];
@@ -47,6 +59,12 @@ private:
 
 	ConnectionStatus connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
 	TransferMode transferMode = TransferMode::TRANSFER_MODE_RELIABLE;
+
+	bool noNagle = false;
+	bool noDelay = false;
+
+	int steamNetworkFlag = 0;
+
 	int targetPeer = 0; //0 means all
 
 	CSteamID lobbyId;
@@ -58,6 +76,17 @@ private:
 
 	void updateLobbyData();
 
+	struct ConnectionData {
+		CSteamID steamId;
+		uint32_t godotId;
+		SteamNetworkingIdentity networkIdentity;
+	};
+
+	List<const ConnectionData> connections;
+	ConnectionData* activeConnection;
+	// Map<CSteamID,ConnectionData*> steamToGdnet;
+	// Map<uint32_t,ConnectionData*> gdnetToSteam;
+
 protected:
 	static void _bind_methods();
 
@@ -65,19 +94,14 @@ public:
 	SteamNetworkPeer();
 	~SteamNetworkPeer();
 
+	
 
-
-	/* User Functions */
+	/* Specific to SteamNetworkPeer */
 	void createServer(int lobby_type, int max_members);
 	void createClient(uint64_t lobbyId);
-
-	enum LOBBY_TYPE {
-		PRIVATE = ELobbyType::k_ELobbyTypePrivate,
-		FRIENDS_ONLY = ELobbyType::k_ELobbyTypeFriendsOnly,
-		PUBLIC = ELobbyType::k_ELobbyTypePublic,
-		INVISIBLE = ELobbyType::k_ELobbyTypeInvisible,
-		PRIVATE_UNIQUE = ELobbyType::k_ELobbyTypePrivateUnique,
-	};
+	Dictionary getAllLobbyData();
+	void setLobbyData(String key, String value);
+	String getLobbyData(String key);
 
 	/* Specific to PacketPeer */
 	virtual Error get_packet(const uint8_t **r_buffer, int &r_buffer_size);
@@ -97,8 +121,8 @@ public:
 	virtual bool is_refusing_new_connections() const;
 	virtual ConnectionStatus get_connection_status() const;
 
-	/* Callbacks */
-	void lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState);
+	/* Steam Callbacks */
+	// void lobbyChatUpdate( uint64_t lobbyId, uint64_t changedId, uint64_t makingChangeId, uint32 chatState);
 	void lobbyCreated( int connect, uint64_t lobbyId);
 	void lobbyDataUpdate( uint8 success, uint64_t lobbyId, uint64_t memberId);
 	void lobbyJoined( uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response);
@@ -106,8 +130,8 @@ public:
 	void lobbyInvite( uint64_t inviter, uint64_t lobbyId, uint64_t game);
 	void lobbyMatchList( Array lobbies);
 	void lobbyKicked( uint64_t lobbyId, uint64_t adminId, uint8 dueToDisconnect);
-	void joinGameRequested(uint64_t lobbyId, String connect);
-	void joinRequested(int lobby,int steam_id);
+	// void joinGameRequested(uint64_t lobbyId, String connect);
+	// void joinRequested(int lobby,int steam_id);
 
 	STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);
 	STEAM_CALLBACK(SteamNetworkPeer, lobbyChatUpdate, LobbyChatUpdate_t, callbackLobbyChatUpdate);
