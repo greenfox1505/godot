@@ -5,19 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach To Game",
-            "type": "cppvsdbg",
-            "request": "attach",
-            "program": "${workspaceFolder}/bin/godot.windows.tools.64.exe",
-            "stopAtEntry": false,
-            // "cwd": "${workspaceFolder}",
-            "environment": [],
-            "console": "internalConsole",
-            "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
-            // "processName":"godot.windows.tools.64.exe .* debugMeDamnit",
-            "processId":"${command:pickProcess}",
-        },
-        {
             "name": "Debug Project",
             "type": "cppvsdbg",
             "request": "launch",
@@ -53,6 +40,19 @@
             "console": "integratedTerminal",
             "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "Attach To Game",
+            "type": "cppvsdbg",
+            "request": "attach",
+            "program": "${workspaceFolder}/bin/godot.windows.tools.64.exe",
+            "stopAtEntry": false,
+            // "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
+            // "processName":"godot.windows.tools.64.exe .* debugMeDamnit",
+            "processId":"${command:pickProcess}",
         },
     ]
 }
