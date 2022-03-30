@@ -265,7 +265,7 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t *call_data) {
 	switch (CHAT_CHANGE(call_data->m_rgfChatMemberStateChange)) {
 		case CHAT_CHANGE::ENTERED:
 			if (userChanged != SteamUser()->GetSteamID()) {
-				emit_signal("peer_connected", userChanged.GetAccountID());
+				addConnectionPeer(userChanged);
 			}
 			break;
 		case CHAT_CHANGE::LEFT:
@@ -273,7 +273,7 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t *call_data) {
 		case CHAT_CHANGE::KICKED:
 		case CHAT_CHANGE::BANNED:
 			if (userChanged != SteamUser()->GetSteamID()) {
-				emit_signal("peer_disconnected", userChanged.GetAccountID());
+				removeConnectionPeer(userChanged);
 			}
 			break;
 	}
@@ -306,8 +306,7 @@ void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64
 			for (int i = 0; i < playerCount; i++) {
 				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(this->lobbyId, i);
 				if(lobbyMember != SteamUser()->GetSteamID()){
-					auto a = addConnectionPeer(lobbyMember);
-					emit_signal("peer_connected", a.godotId);
+					addConnectionPeer(lobbyMember);
 				}
 			}
 			// TODO_PRINT("Update entire lobby!");

@@ -115,15 +115,22 @@ private:
 	}
 	// Map<CSteamID,ConnectionData*> steamToGdnet;
 	// Map<uint32_t,ConnectionData*> gdnetToSteam;
-	const ConnectionData& addConnectionPeer(const CSteamID &steamId) {
-		int godotId = steamId == lobbyOwner ? 1 : steamId.GetAccountID(); //maybe this account ID needs to be something else?
-		connections.push_back(ConnectionData(steamId,godotId));
-		return connections.back()->get();
+	bool addConnectionPeer(const CSteamID &steamId) {
+		if(steamId == SteamUser()->GetSteamID()){
+			return false;
+		}else{
+			int godotId = steamId == lobbyOwner ? 1 : steamId.GetAccountID(); //maybe this account ID needs to be something else?
+			connections.push_back(ConnectionData(steamId,godotId));
+			emit_signal("peer_connected",godotId);
+			connections.back()->get();
+			return true;
+		}
 	}
 	void removeConnectionPeer(const CSteamID &steamId) {
 		auto a = connections.front();
 		while(a){
 			if(a->get().steamId == steamId){
+				emit_signal("peer_disconnected",a->get().godotId);
 				connections.erase(a);
 				return;
 			}else{
