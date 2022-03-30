@@ -10077,13 +10077,13 @@ void Steam::network_connection_status_changed(SteamNetConnectionStatusChangedCal
 	SteamNetConnectionInfo_t connection_info = call_data->m_info;
 	// Move connection info into a dictionary
 	Dictionary connection;
-	char identity;
-	connection_info.m_identityRemote.ToString(&identity, 128);
+	char identity[128];
+	connection_info.m_identityRemote.ToString(identity, 128);
 	connection["identity"] = identity;
 	connection["user_data"] = (uint64_t)connection_info.m_nUserData;
 	connection["listen_socket"] = connection_info.m_hListenSocket;
-	char ip_address;
-	connection_info.m_addrRemote.ToString(&ip_address, 128, true);
+	char ip_address[128];
+	connection_info.m_addrRemote.ToString(ip_address, 128, true);
 	connection["remote_address"] = ip_address;
 	connection["remote_pop"] = connection_info.m_idPOPRemote;
 	connection["pop_relay"] = connection_info.m_idPOPRelay;
