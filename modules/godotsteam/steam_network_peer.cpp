@@ -88,7 +88,7 @@ void SteamNetworkPeer::createClient(uint64_t lobbyId) {
 	ERR_FAIL_COND_MSG(SteamMatchmaking(), "Steam is likely not init'd.");
 
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
-	SteamMatchmaking()->JoinLobby(CSteamID(lobbyId));
+	SteamMatchmaking()->JoinLobby((uint64)lobbyId);
 }
 Dictionary SteamNetworkPeer::getAllLobbyData() {
 	return lobbyData;
@@ -302,9 +302,9 @@ void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64
 		if (lobbyId == memberId) {
 			// WARN_PRINT("lobbyGameCreated: todo, update lobby itself!");
 			//update the entire lobby
-			int playerCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+			int playerCount = SteamMatchmaking()->GetNumLobbyMembers(this->lobbyId);
 			for (int i = 0; i < playerCount; i++) {
-				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, playerCount);
+				CSteamID lobbyMember = SteamMatchmaking()->GetLobbyMemberByIndex(this->lobbyId, playerCount);
 				if(lobbyMember != SteamUser()->GetSteamID()){
 					auto a = addConnectionPeer(lobbyMember);
 					emit_signal("peer_connected", a.godotId);
