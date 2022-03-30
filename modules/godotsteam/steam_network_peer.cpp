@@ -203,9 +203,6 @@ void SteamNetworkPeer::set_target_peer(int p_peer_id) {
 
 int SteamNetworkPeer::get_packet_peer() const {
 	return receivedPackets.front()->get()->sender.GetAccountID();
-	if (isServer) {
-		return 1;
-	}
 };
 
 bool SteamNetworkPeer::is_server() const {
