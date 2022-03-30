@@ -120,7 +120,7 @@ Error SteamNetworkPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 	// String a;
 	// a.copy_from_unchecked(p_buffer,p_buffer_size);
 	// steam->sendLobbyChatMsg();
-	if (activeConnection != nullptr) { //send to ALL
+	if (activeConnection == nullptr) { //send to ALL
 		EResult returnValue = k_EResultOK;
 		for (int i = 0; i < connections.size(); i++) {
 			auto errorCode = SteamNetworkingMessages()->SendMessageToUser(connections[i].networkIdentity, p_buffer, p_buffer_size, steamNetworkFlag, MAIN_COM_CHANNEL);
