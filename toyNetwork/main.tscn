@@ -22,7 +22,7 @@ func _on_ping_pressed():
 
 
 func network_peer_connected(id):
-	print('peer connected!:' + id)
+	print('peer connected!:' + String(id))
 #	(get_tree().network_peer as NetworkedMultiplayerENet).set_peer_timeout(id,INF,-INF,INF)
 
 
