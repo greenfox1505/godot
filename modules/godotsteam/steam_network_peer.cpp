@@ -313,15 +313,15 @@ void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64
 		ERR_PRINT("failed!");
 };
 const int MAX_LOBBY_KEY_LENGTH = 255;
-const int CHAT_METADATA_MAX = 8192;
+const int MAX_CHAT_METADATA = 8192;
 void SteamNetworkPeer::updateLobbyData() {
 	//set all lobby data
 	Dictionary data;
 	int dataCount = SteamMatchmaking()->GetLobbyDataCount(lobbyId);
 	char key[MAX_LOBBY_KEY_LENGTH];
-	char value[CHAT_METADATA_MAX];
+	char value[MAX_CHAT_METADATA];
 	for (int i = 0; i < dataCount; i++) {
-		bool success = SteamMatchmaking()->GetLobbyDataByIndex(lobbyId, i, key, MAX_LOBBY_KEY_LENGTH, value, CHAT_METADATA_MAX);
+		bool success = SteamMatchmaking()->GetLobbyDataByIndex(lobbyId, i, key, MAX_LOBBY_KEY_LENGTH, value, MAX_CHAT_METADATA);
 		if (success) {
 			data["index"] = i;
 			data["key"] = key;
