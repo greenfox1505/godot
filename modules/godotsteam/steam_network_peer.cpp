@@ -85,7 +85,7 @@ void SteamNetworkPeer::createServer(int lobby_type, int max_members) {
 	Steam::get_singleton()->createLobby(lobby_type, max_members);
 }
 void SteamNetworkPeer::createClient(uint64_t lobbyId) {
-	ERR_FAIL_COND_MSG(SteamMatchmaking(), "Steam is likely not init'd.");
+	// ERR_FAIL_COND_MSG(SteamMatchmaking() == nullptr, "Steam is likely not init'd.");
 
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	SteamMatchmaking()->JoinLobby((uint64)lobbyId);
