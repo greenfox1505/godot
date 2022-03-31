@@ -120,17 +120,19 @@ private:
 			return false;
 		}else{
 			int godotId = steamId == lobbyOwner ? 1 : steamId.GetAccountID(); //maybe this account ID needs to be something else?
-			connections.push_back(ConnectionData(steamId,godotId));
+			auto connection = connections.push_back(ConnectionData(steamId,godotId))->get();
 			emit_signal("peer_connected",godotId);
-			connections.back()->get();
+			SteamNetworkingMessages()->AcceptSessionWithUser(connection.networkIdentity);
 			return true;
 		}
 	}
 	void removeConnectionPeer(const CSteamID &steamId) {
 		auto a = connections.front();
 		while(a){
-			if(a->get().steamId == steamId){
-				emit_signal("peer_disconnected",a->get().godotId);
+			auto element = a->get();
+			if(element.steamId == steamId){
+				SteamNetworkingMessages()->CloseSessionWithUser(element.networkIdentity);
+				emit_signal("peer_disconnected",element.godotId);
 				connections.erase(a);
 				return;
 			}else{
