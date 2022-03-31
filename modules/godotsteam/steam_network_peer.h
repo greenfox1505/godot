@@ -187,6 +187,7 @@ public:
 
 	STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);
 	STEAM_CALLBACK(SteamNetworkPeer, lobbyChatUpdate, LobbyChatUpdate_t, callbackLobbyChatUpdate);
+	STEAM_CALLBACK(SteamNetworkPeer, networkMessagesSessionRequest, SteamNetworkingMessagesSessionRequest_t, callbackNetworkMessagesSessionRequest);
 
 	// STEAM_CALLBACK(SteamNetworkPeer, joinRequested, GameLobbyJoinRequested_t, callbackJoinRequested);
 	// STEAM_CALLBACK(SteamNetworkPeer, lobbyMessage, LobbyChatMsg_t, callbackLobbyMessage);

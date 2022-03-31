@@ -14,7 +14,8 @@
 
 SteamNetworkPeer::SteamNetworkPeer() :
 		callbackLobbyMessage(this, &SteamNetworkPeer::lobbyMessage),
-		callbackLobbyChatUpdate(this, &SteamNetworkPeer::lobbyChatUpdate)
+		callbackLobbyChatUpdate(this, &SteamNetworkPeer::lobbyChatUpdate),
+		callbackNetworkMessagesSessionRequest(this,&SteamNetworkPeer::networkMessagesSessionRequest)
 
 {
 	steam = Steam::get_singleton();
@@ -275,6 +276,10 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t *call_data) {
 			break;
 	}
 };
+void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t* t){
+	
+}
+
 
 void SteamNetworkPeer::lobbyCreated(int connect, uint64_t lobbyId) {
 	TODO_PRINT("remove steam singleton signal callback");
