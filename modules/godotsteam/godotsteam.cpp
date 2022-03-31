@@ -712,8 +712,8 @@ String Steam::getLaunchCommandLine(){
 	if(SteamApps() == NULL){
 		return "";
 	}
-	char commands;
-	SteamApps()->GetLaunchCommandLine(&commands, 256);
+	char commands[256];
+	SteamApps()->GetLaunchCommandLine(commands, 256);
 	String command_line;
 	command_line += commands;
 	return command_line;
@@ -784,26 +784,30 @@ Array Steam::getInstalledApps(uint32 max_app_ids){
 
 //! Get a given app ID's name.
 String Steam::getAppName(uint32_t app_id, int name_max){
-	String app_name = "";
+	String app_name;
 	if(SteamAppList() != NULL){
-		char app;
-		int name_found = SteamAppList()->GetAppName((AppId_t)app_id, &app, name_max);
-		if(name_found != -1){
-			app_name += app;
+		char* appBuffer = new char[name_max];
+		int bufferSize = SteamAppList()->GetAppName((AppId_t)app_id, appBuffer, name_max);
+		app_name.resize(bufferSize);
+		for(int i = 0; i < bufferSize; i++){
+			app_name[i] = appBuffer[i]; //why doesn't Godot String let you use a raw char buffer with size?!
 		}
+		delete[] appBuffer;
 	}
 	return app_name;
 }
 
 //! Get a given app ID's install directory.
 String Steam::getAppListInstallDir(uint32_t app_id, int name_max){
-	String dir_name = "";
+	String dir_name;
 	if(SteamAppList() != NULL){
-		char directory;
-		int name_found = SteamAppList()->GetAppInstallDir((AppId_t)app_id, &directory, name_max);
-		if(name_found != -1){
-			dir_name += directory;
+		char* dirBuffer = new char[name_max];
+		int bufferSize = SteamAppList()->GetAppInstallDir((AppId_t)app_id, dirBuffer, name_max);
+		dir_name.resize(bufferSize);
+		for(int i = 0; i < bufferSize; i++){
+			dir_name[i] = dirBuffer[i]; //why doesn't Godot String let you use a raw char buffer with size?!
 		}
+		delete[] dirBuffer;
 	}
 	return dir_name;
 }
@@ -4776,13 +4780,13 @@ Dictionary Steam::getSessionConnectionInfo(const String& identity_reference, boo
 		connection_info["connection_state"] = connection_state;
 		// If getting the connection information
 		if(get_connection){
-			char identity;
-			this_info.m_identityRemote.ToString(&identity, 128);
+			char identity[128];
+			this_info.m_identityRemote.ToString(identity, 128);
 			connection_info["identity"] = identity;
 			connection_info["user_data"] = (uint64_t)this_info.m_nUserData;
 			connection_info["listen_socket"] = this_info.m_hListenSocket;
-			char ip_address;
-			this_info.m_addrRemote.ToString(&ip_address, 128, true);
+			char ip_address[128];
+			this_info.m_addrRemote.ToString(ip_address, 128, true);
 			connection_info["remote_address"] = ip_address;
 			connection_info["remote_pop"] = this_info.m_idPOPRemote;
 			connection_info["pop_relay"] = this_info.m_idPOPRelay;
@@ -4831,8 +4835,8 @@ Array Steam::receiveMessagesOnChannel(int channel, int max_messages){
 			message["payload"] = channel_messages[i].m_pData;
 			message["size"] = channel_messages[i].m_cbSize;
 			message["connection"] = channel_messages[i].m_conn;
-			char identity;
-			channel_messages[i].m_identityPeer.ToString(&identity, 128);
+			char identity[128];
+			channel_messages[i].m_identityPeer.ToString(identity, 128);
 			message["identity"] = identity;
 			message["user_data"] = (uint64_t)channel_messages[i].m_nConnUserData;
 			message["time_received"] = (uint64_t)channel_messages[i].m_usecTimeReceived;
@@ -4999,8 +5003,8 @@ Array Steam::receiveMessagesOnConnection(uint32 connection_handle, int max_messa
 			message["payload"] = connection_messages[i].m_pData;
 			message["size"] = connection_messages[i].m_cbSize;
 			message["connection"] = connection_messages[i].m_conn;
-			char identity;
-			connection_messages[i].m_identityPeer.ToString(&identity, 128);
+			char identity[128];
+			connection_messages[i].m_identityPeer.ToString(identity, 128);
 			message["identity"] = identity;
 			message["user_data"] = (uint64_t)connection_messages[i].m_nConnUserData;
 			message["time_received"] = (uint64_t)connection_messages[i].m_usecTimeReceived;
@@ -5060,8 +5064,8 @@ Array Steam::receiveMessagesOnPollGroup(uint32 poll_group, int max_messages){
 			message["payload"] = poll_messages[i].m_pData;
 			message["size"] = poll_messages[i].m_cbSize;
 			message["connection"] = poll_messages[i].m_conn;
-			char identity;
-			poll_messages[i].m_identityPeer.ToString(&identity, 128);
+			char identity[128];
+			poll_messages[i].m_identityPeer.ToString(identity, 128);
 			message["identity"] = identity;
 			message["user_data"] = (uint64_t)poll_messages[i].m_nConnUserData;
 			message["time_received"] = (uint64_t)poll_messages[i].m_usecTimeReceived;
@@ -5083,13 +5087,13 @@ Dictionary Steam::getConnectionInfo(uint32 connection_handle){
 	if(SteamNetworkingSockets() != NULL){
 		SteamNetConnectionInfo_t info;
 		if(SteamNetworkingSockets()->GetConnectionInfo((HSteamNetConnection)connection_handle, &info)){
-			char identity;
-			info.m_identityRemote.ToString(&identity, 128);
+			char identity[128];
+			info.m_identityRemote.ToString(identity, 128);
 			connection_info["identity"] = identity;
 			connection_info["user_data"] = (uint64_t)info.m_nUserData;
 			connection_info["listen_socket"] = info.m_hListenSocket;
-			char ip_address;
-			info.m_addrRemote.ToString(&ip_address, 128, true);
+			char ip_address[128];
+			info.m_addrRemote.ToString(ip_address, 128, true);
 			connection_info["remote_address"] = ip_address;
 			connection_info["remote_pop"] = info.m_idPOPRemote;
 			connection_info["pop_relay"] = info.m_idPOPRelay;
@@ -5106,8 +5110,8 @@ Dictionary Steam::getConnectionInfo(uint32 connection_handle){
 Dictionary Steam::getDetailedConnectionStatus(uint32 connection){
 	Dictionary connectionStatus;
 	if(SteamNetworkingSockets() != NULL){
-		char buffer;
-		int success = SteamNetworkingSockets()->GetDetailedConnectionStatus((HSteamNetConnection)connection, &buffer, 2048);
+		char buffer[2048];
+		int success = SteamNetworkingSockets()->GetDetailedConnectionStatus((HSteamNetConnection)connection, buffer, 2048);
 		// Add data to dictionary
 		connectionStatus["success"] = success;
 		connectionStatus["status"] = buffer;
@@ -5136,8 +5140,8 @@ String Steam::getConnectionName(uint32 peer){
 	// Set empty string variable for use
 	String connection_name = "";
 	if(SteamNetworkingSockets() != NULL){
-		char name;
-		if(SteamNetworkingSockets()->GetConnectionName((HSteamNetConnection)peer, &name, 256)){
+		char name[256];
+		if(SteamNetworkingSockets()->GetConnectionName((HSteamNetConnection)peer, name, 256)){
 			connection_name += name;	
 		}
 	}
@@ -6104,8 +6108,8 @@ Dictionary Steam::getBeaconDetails(uint64_t beacon_id){
 	if(SteamParties() != NULL){
 		CSteamID owner;
 		SteamPartyBeaconLocation_t location;
-		char metadata;
-		if(SteamParties()->GetBeaconDetails(beacon_id, &owner, &location, &metadata, 2048)){
+		char metadata[2048];
+		if(SteamParties()->GetBeaconDetails(beacon_id, &owner, &location, metadata, 2048)){
 			details["beacon_id"] = beacon_id;
 			details["owner_id"] = (uint64_t)owner.ConvertToUint64();
 			details["type"] = location.m_eType;
@@ -10054,8 +10058,8 @@ void Steam::p2p_session_request(P2PSessionRequest_t* call_data){
 //! Posted when a remote host is sending us a message, and we do not already have a session with them.
 void Steam::network_messages_session_request(SteamNetworkingMessagesSessionRequest_t* call_data){
 	SteamNetworkingIdentity remote = call_data->m_identityRemote;
-	char identity;
-	remote.ToString(&identity, 128);
+	char identity[128];
+	remote.ToString(identity, 128);
 	emit_signal("network_messages_session_request", identity);
 }
 

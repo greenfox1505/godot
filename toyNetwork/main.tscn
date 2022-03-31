@@ -14,8 +14,8 @@ func _ready():
 	get_tree().connect(\"network_peer_connected\",self,\"network_peer_connected\")
 	for i in OS.get_cmdline_args():
 		pass
-		
-		
+	var q = Steam.getAppListInstallDir(1003590,1234);
+	pass
 
 func _on_ping_pressed():
 	rpc(\"play\")
