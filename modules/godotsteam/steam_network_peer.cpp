@@ -278,7 +278,7 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t *call_data) {
 };
 void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t* t){
 	//search for lobby member
-	auto requester = t->m_identityRemote.GetSteamID();
+	CSteamID requester = t->m_identityRemote.GetSteamID();
 	int currentLobbySize = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
 	for(int i = 0; i < currentLobbySize; i++){
 		if(SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId,i) == requester){
@@ -286,7 +286,7 @@ void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSess
 			return;
 		}
 	}
-	ERR_PRINT("CONNECTION ATTEMPTED BY PLAYER NOT IN LOBBY!" + String(requester.Render()));
+	ERR_PRINT(String("CONNECTION ATTEMPTED BY PLAYER NOT IN LOBBY! todo: add steamid to this message"));
 }
 
 
