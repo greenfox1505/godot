@@ -4779,7 +4779,7 @@ Dictionary Steam::getSessionConnectionInfo(const String& identity_reference, boo
 		// Parse the data to a dictionary
 		connection_info["connection_state"] = connection_state;
 		// If getting the connection information
-		if(get_connection){
+		if(get_connection){ //todod: we should read the `this_info.m_identityRemote.m_eType` and only extract the meaningful values here (IP is meaningless when m_eType == k_ESteamNetworkingIdentityType_SteamID)
 			char identity[128];
 			this_info.m_identityRemote.ToString(identity, 128);
 			connection_info["identity"] = identity;
