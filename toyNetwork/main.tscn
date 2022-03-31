@@ -37,6 +37,29 @@ func _ready():
 	pass
 	for i in OS.get_cmdline_args():
 		text = text + \"\\n\" + i
+	get_tree().connect(\"connected_to_server\",self,\"connected_to_server\")
+	get_tree().connect(\"server_disconnected\",self,\"server_disconnected\")
+	get_tree().connect(\"network_peer_connected\",self,\"network_peer_connected\")
+	get_tree().connect(\"network_peer_disconnected\",self,\"network_peer_disconnected\")
+	Steam.connect(\"lobby_joined\",self,\"lobby_joined\")
+	
+func connected_to_server():
+	text = \"connected_to_server\"
+
+func server_disconnected():
+	text = \"server_disconnected\"
+
+func network_peer_connected(id):
+	text = \"network_peer_connected:\" + String(id)
+	
+	
+func network_peer_disconnected(id):
+	text = \"network_peer_connected:\" + String(id)
+
+
+
+func lobby_joined(lobby: int, permissions: int, locked: bool, response: int):
+	text = \"SteamLobbyJoined:\" + String(lobby); 
 "
 
 [sub_resource type="GDScript" id=6]
