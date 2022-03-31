@@ -277,7 +277,16 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t *call_data) {
 	}
 };
 void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t* t){
-	
+	//search for lobby member
+	auto requester = t->m_identityRemote.GetSteamID();
+	int currentLobbySize = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+	for(int i = 0; i < currentLobbySize; i++){
+		if(SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId,i) == requester){
+			SteamNetworkingMessages()->AcceptSessionWithUser(t->m_identityRemote);
+			return;
+		}
+	}
+	ERR_PRINT("CONNECTION ATTEMPTED BY PLAYER NOT IN LOBBY!" + String(requester.Render()));
 }
 
 
