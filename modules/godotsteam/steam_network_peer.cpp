@@ -82,12 +82,13 @@ void SteamNetworkPeer::_bind_methods() {
 
 /* Specific to SteamNetworkPeer */
 void SteamNetworkPeer::createServer(int lobby_type, int max_members) {
+	isServer = true;
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	Steam::get_singleton()->createLobby(lobby_type, max_members);
 }
 void SteamNetworkPeer::createClient(uint64_t lobbyId) {
 	// ERR_FAIL_COND_MSG(SteamMatchmaking() == nullptr, "Steam is likely not init'd.");
-
+	isServer = false;
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	SteamMatchmaking()->JoinLobby((uint64)lobbyId);
 }
@@ -231,13 +232,11 @@ void SteamNetworkPeer::poll(){
 };
 
 int SteamNetworkPeer::get_unique_id() const {
-	return SteamUser()->GetSteamID().GetAccountID();
 	// return receivedPackets.front()->get()->sender.GetAccountID();
 	if (isServer) {
 		return 1;
 	}
-	CSteamID steam_id = SteamUser()->GetSteamID();
-	return steam_id.GetAccountID();
+	return SteamUser()->GetSteamID().GetAccountID();
 };
 
 void SteamNetworkPeer::set_refuse_new_connections(bool p_enable) {
