@@ -1416,6 +1416,8 @@ void OS_X11::set_window_size(const Size2 p_size) {
 	int old_h = xwa.height;
 
 	Size2 size = p_size;
+
+	ERR_FAIL_COND(Math::is_nan(size.x) || Math::is_nan(size.y));
 	size.x = MAX(1, size.x);
 	size.y = MAX(1, size.y);
 
@@ -1667,8 +1669,15 @@ bool OS_X11::window_maximize_check(const char *p_atom_name) const {
 
 	if (result == Success) {
 		Atom *atoms = (Atom *)data;
-		Atom wm_act_max_horz = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_HORZ", False);
-		Atom wm_act_max_vert = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_VERT", False);
+		Atom wm_act_max_horz;
+		Atom wm_act_max_vert;
+		if (strcmp(p_atom_name, "_NET_WM_STATE") == 0) {
+			wm_act_max_horz = XInternAtom(x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+			wm_act_max_vert = XInternAtom(x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+		} else {
+			wm_act_max_horz = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_HORZ", False);
+			wm_act_max_vert = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_VERT", False);
+		}
 		bool found_wm_act_max_horz = false;
 		bool found_wm_act_max_vert = false;
 
@@ -1686,6 +1695,49 @@ bool OS_X11::window_maximize_check(const char *p_atom_name) const {
 			}
 		}
 
+		XFree(data);
+	}
+
+	return retval;
+}
+
+bool OS_X11::window_fullscreen_check() const {
+	// Using EWMH -- Extended Window Manager Hints
+	Atom property = XInternAtom(x11_display, "_NET_WM_STATE", False);
+	Atom type;
+	int format;
+	unsigned long len;
+	unsigned long remaining;
+	unsigned char *data = nullptr;
+	bool retval = false;
+
+	if (property == None) {
+		return retval;
+	}
+
+	int result = XGetWindowProperty(
+			x11_display,
+			x11_window,
+			property,
+			0,
+			1024,
+			False,
+			XA_ATOM,
+			&type,
+			&format,
+			&len,
+			&remaining,
+			&data);
+
+	if (result == Success) {
+		Atom *atoms = (Atom *)data;
+		Atom wm_fullscreen = XInternAtom(x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+		for (uint64_t i = 0; i < len; i++) {
+			if (atoms[i] == wm_fullscreen) {
+				retval = true;
+				break;
+			}
+		}
 		XFree(data);
 	}
 
@@ -2529,6 +2581,8 @@ void OS_X11::process_xevents() {
 
 		switch (event.type) {
 			case Expose:
+				current_videomode.fullscreen = window_fullscreen_check();
+
 				Main::force_redraw();
 				break;
 
@@ -2591,7 +2645,7 @@ void OS_X11::process_xevents() {
 				window_focused = false;
 
 				if (mouse_mode_grab) {
-					//dear X11, I try, I really try, but you never work, you do whathever you want.
+					//dear X11, I try, I really try, but you never work, you do whatever you want.
 					if (mouse_mode == MOUSE_MODE_CAPTURED) {
 						// Show the cursor if we're in captured mode so it doesn't look weird.
 						XUndefineCursor(x11_display, x11_window);
@@ -3758,9 +3812,11 @@ static String get_mountpoint(const String &p_path) {
 }
 
 Error OS_X11::move_to_trash(const String &p_path) {
+	String path = p_path.rstrip("/"); // Strip trailing slash when path points to a directory
+
 	int err_code;
 	List<String> args;
-	args.push_back(p_path);
+	args.push_back(path);
 	args.push_front("trash"); // The command is `gio trash <file_name>` so we need to add it to args.
 	Error result = execute("gio", args, true, nullptr, nullptr, &err_code); // For GNOME based machines.
 	if (result == OK && !err_code) {
@@ -3790,14 +3846,14 @@ Error OS_X11::move_to_trash(const String &p_path) {
 
 	// If the commands `kioclient5`, `gio` or `gvfs-trash` don't exist on the system we do it manually.
 	String trash_path = "";
-	String mnt = get_mountpoint(p_path);
+	String mnt = get_mountpoint(path);
 
 	// If there is a directory "[Mountpoint]/.Trash-[UID], use it as the trash can.
 	if (mnt != "") {
-		String path(mnt + "/.Trash-" + itos(getuid()));
+		String mountpoint_trash_path(mnt + "/.Trash-" + itos(getuid()));
 		struct stat s;
-		if (!stat(path.utf8().get_data(), &s)) {
-			trash_path = path;
+		if (!stat(mountpoint_trash_path.utf8().get_data(), &s)) {
+			trash_path = mountpoint_trash_path;
 		}
 	}
 
@@ -3825,21 +3881,18 @@ Error OS_X11::move_to_trash(const String &p_path) {
 		DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
 		Error err = dir_access->make_dir_recursive(trash_path);
 
-		// Issue an error if trash can is not created proprely.
+		// Issue an error if trash can is not created properly.
 		ERR_FAIL_COND_V_MSG(err != OK, err, "Could not create the trash path \"" + trash_path + "\"");
 		err = dir_access->make_dir_recursive(trash_path + "/files");
-		ERR_FAIL_COND_V_MSG(err != OK, err, "Could not create the trash path \"" + trash_path + "\"/files");
+		ERR_FAIL_COND_V_MSG(err != OK, err, "Could not create the trash path \"" + trash_path + "/files\"");
 		err = dir_access->make_dir_recursive(trash_path + "/info");
-		ERR_FAIL_COND_V_MSG(err != OK, err, "Could not create the trash path \"" + trash_path + "\"/info");
+		ERR_FAIL_COND_V_MSG(err != OK, err, "Could not create the trash path \"" + trash_path + "/info\"");
 	}
 
 	// The trash can is successfully created, now we check that we don't exceed our file name length limit.
 	// If the file name is too long trim it so we can add the identifying number and ".trashinfo".
 	// Assumes that the file name length limit is 255 characters.
-	String file_name = p_path.get_file();
-	if (file_name.length() == 0) {
-		file_name = p_path.get_base_dir().get_file();
-	}
+	String file_name = path.get_file();
 	if (file_name.length() > 240) {
 		file_name = file_name.substr(0, file_name.length() - 15);
 	}
@@ -3862,29 +3915,31 @@ Error OS_X11::move_to_trash(const String &p_path) {
 	}
 	file_name = fn;
 
+	String renamed_path = path.get_base_dir() + "/" + file_name;
+
 	// Generates the .trashinfo file
 	OS::Date date = OS::get_singleton()->get_date(false);
 	OS::Time time = OS::get_singleton()->get_time(false);
 	String timestamp = vformat("%04d-%02d-%02dT%02d:%02d:", date.year, (int)date.month, date.day, time.hour, time.min);
 	timestamp = vformat("%s%02d", timestamp, time.sec); // vformat only supports up to 6 arguments.
-	String trash_info = "[Trash Info]\nPath=" + p_path.http_escape() + "\nDeletionDate=" + timestamp + "\n";
+	String trash_info = "[Trash Info]\nPath=" + path.http_escape() + "\nDeletionDate=" + timestamp + "\n";
 	{
 		Error err;
 		FileAccessRef file = FileAccess::open(trash_path + "/info/" + file_name + ".trashinfo", FileAccess::WRITE, &err);
-		ERR_FAIL_COND_V_MSG(err != OK, err, "Can't create trashinfo file:" + trash_path + "/info/" + file_name + ".trashinfo");
+		ERR_FAIL_COND_V_MSG(err != OK, err, "Can't create trashinfo file: \"" + trash_path + "/info/" + file_name + ".trashinfo\"");
 		file->store_string(trash_info);
 		file->close();
 
 		// Rename our resource before moving it to the trash can.
 		DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-		err = dir_access->rename(p_path, p_path.get_base_dir() + "/" + file_name);
-		ERR_FAIL_COND_V_MSG(err != OK, err, "Can't rename file \"" + p_path + "\"");
+		err = dir_access->rename(path, renamed_path);
+		ERR_FAIL_COND_V_MSG(err != OK, err, "Can't rename file \"" + path + "\" to \"" + renamed_path + "\"");
 	}
 
 	// Move the given resource to the trash can.
 	// Do not use DirAccess:rename() because it can't move files across multiple mountpoints.
 	List<String> mv_args;
-	mv_args.push_back(p_path.get_base_dir() + "/" + file_name);
+	mv_args.push_back(renamed_path);
 	mv_args.push_back(trash_path + "/files");
 	{
 		int retval;
@@ -3892,11 +3947,11 @@ Error OS_X11::move_to_trash(const String &p_path) {
 
 		// Issue an error if "mv" failed to move the given resource to the trash can.
 		if (err != OK || retval != 0) {
-			ERR_PRINT("move_to_trash: Could not move the resource \"" + p_path + "\" to the trash can \"" + trash_path + "/files\"");
+			ERR_PRINT("move_to_trash: Could not move the resource \"" + path + "\" to the trash can \"" + trash_path + "/files\"");
 			DirAccess *dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-			err = dir_access->rename(p_path.get_base_dir() + "/" + file_name, p_path);
+			err = dir_access->rename(renamed_path, path);
 			memdelete(dir_access);
-			ERR_FAIL_COND_V_MSG(err != OK, err, "Could not rename " + p_path.get_base_dir() + "/" + file_name + " back to its original name:" + p_path);
+			ERR_FAIL_COND_V_MSG(err != OK, err, "Could not rename \"" + renamed_path + "\" back to its original name: \"" + path + "\"");
 			return FAILED;
 		}
 	}

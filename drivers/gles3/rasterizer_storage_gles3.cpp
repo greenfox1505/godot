@@ -3153,7 +3153,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
 
 		if (material->shader && material->shader->mode == VS::SHADER_SPATIAL) {
 			if (material->shader->spatial.blend_mode == Shader::Spatial::BLEND_MODE_MIX &&
-					(!material->shader->spatial.uses_alpha || material->shader->spatial.depth_draw_mode == Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS)) {
+					(!(material->shader->spatial.uses_alpha && !material->shader->spatial.uses_alpha_scissor) || material->shader->spatial.depth_draw_mode == Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS)) {
 				can_cast_shadow = true;
 			}
 
@@ -4279,7 +4279,7 @@ void RasterizerStorageGLES3::mesh_render_blend_shapes(Surface *s, const float *p
 
 	shaders.blend_shapes.set_uniform(BlendShapeShaderGLES3::BLEND_AMOUNT, base_weight);
 	glEnable(GL_RASTERIZER_DISCARD);
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, resources.transform_feedback_buffers[0]);
 	glBeginTransformFeedback(GL_POINTS);
 	glDrawArrays(GL_POINTS, 0, s->array_len);
