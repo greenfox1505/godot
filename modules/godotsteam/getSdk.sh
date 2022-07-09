@@ -6,7 +6,7 @@ main()
 {
     cleanup
     pullSDK
-    setup
+    #setup
 }
 
 setup()

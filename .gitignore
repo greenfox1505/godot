@@ -362,3 +362,6 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+
+
+modules/godotsteam/sdk/*
