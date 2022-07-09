@@ -135,10 +135,8 @@ func _on_host_pressed():
 	s.create_server(SteamNetworkPeer.PUBLIC,32);
 	get_tree().network_peer = s
 
-func _on_connect_pressed():
-	pass
-#	clearNetwork()
-#	get_tree().network_peer = SteamNetworkPeer.new()
+func _on_overlay_pressed():
+	Steam.activateGameOverlay()
 
 func clearNetwork():
 	var p = get_tree().network_peer
@@ -155,6 +153,7 @@ func joinRequested(lobbyId,steamId):
 	s.create_client(lobbyId);
 	get_tree().network_peer = s;
 	
+
 "
 
 [sub_resource type="Animation" id=1]
@@ -327,7 +326,7 @@ margin_right = 267.0
 margin_bottom = 37.0
 text = "Connect"
 
-[node name="PureSteam" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="PureGrampsSteam" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 visible = false
 margin_top = 78.0
 margin_right = 328.0
@@ -337,20 +336,20 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam"]
 margin_top = 6.0
 margin_right = 126.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
 text = "Pure Steam"
 
-[node name="host" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
+[node name="host" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam"]
 margin_left = 134.0
 margin_right = 208.0
 margin_bottom = 37.0
 text = "Host"
 
-[node name="connect" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam"]
+[node name="connect" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam"]
 margin_left = 216.0
 margin_right = 328.0
 margin_bottom = 37.0
@@ -379,7 +378,7 @@ margin_right = 151.0
 margin_bottom = 37.0
 text = "Host"
 
-[node name="connect" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam"]
+[node name="overlay" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam"]
 margin_left = 159.0
 margin_right = 267.0
 margin_bottom = 37.0
@@ -454,9 +453,9 @@ script = SubResource( 10 )
 
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet" method="_on_host_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet" method="_on_connect_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam" method="_on_host_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureSteam" method="_on_connect_pressed"]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam" method="_on_host_pressed"]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam" method="_on_connect_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_host_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_connect_pressed"]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam/overlay" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Steam" method="_on_overlay_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/pingBox/HBoxContainer/ping" to="." method="_on_ping_pressed"]
 [connection signal="pressed" from="testYeild" to="testYeild" method="_on_testYeild_pressed"]
