@@ -13,6 +13,9 @@ signal host
 
 const port = 7777
 
+signal postMessage(msg)
+
+
 func _ready():	
 	get_tree().connect(\"network_peer_connected\",self,\"network_peer_connected\")
 	for i in OS.get_cmdline_args():
@@ -30,6 +33,7 @@ func network_peer_connected(id):
 
 
 sync func play():
+	emit_signal(\"postMessage\",\"Ping from:\" + String(get_tree().get_rpc_sender_id()))
 	animator.play(\"qwer\")
 "
 
@@ -463,6 +467,7 @@ script = SubResource( 10 )
 
 [node name="world" parent="CanvasLayer" instance=ExtResource( 2 )]
 
+[connection signal="postMessage" from="." to="PanelContainer/MarginContainer/ScrollContainer/VBoxContainer" method="createLabel"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet" method="_on_host_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet" method="_on_connect_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam" method="_on_host_pressed"]
