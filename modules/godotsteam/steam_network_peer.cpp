@@ -60,6 +60,7 @@ void SteamNetworkPeer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("create_server", "lobby_type", "max_members"), &SteamNetworkPeer::createServer, DEFVAL(FRIENDS_ONLY), DEFVAL(2));
 	ClassDB::bind_method(D_METHOD("create_client", "lobby_id"), &SteamNetworkPeer::createClient);
+	ClassDB::bind_method(D_METHOD("close_connection"), &SteamNetworkPeer::closeConnection);
 
 	// peer_connected //pre existing signals
 	// peer_disconnectedf
