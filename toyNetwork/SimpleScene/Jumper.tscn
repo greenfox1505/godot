@@ -43,9 +43,9 @@ func _physics_process(delta):
 
 
 func updateNetwork():
-	if get_tree().has_network_peer() == false:
+	if get_tree().has_network_peer() == false or get_tree().network_peer.get_connection_status() != NetworkedMultiplayerPeer.CONNECTION_CONNECTED:
 		return
-	rpc(\"movePlayer\",global_transform.origin)
+	rpc_unreliable(\"movePlayer\",global_transform.origin)
 	
 	
 puppet func movePlayer(position):
