@@ -15,9 +15,6 @@ var currentSpeed:Vector2= Vector2.ZERO
 export var isCurrentPlayer = false
 
 func _ready():
-	if isCurrentPlayer:
-		get_parent().jumper = self
-		
 	$CenterContainer/Label.text = String(get_network_master())
 
 func _physics_process(delta):
