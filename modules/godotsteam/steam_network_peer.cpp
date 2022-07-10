@@ -18,7 +18,7 @@ SteamNetworkPeer::SteamNetworkPeer() :
 		callbackNetworkMessagesSessionRequest(this, &SteamNetworkPeer::networkMessagesSessionRequest)
 
 {
-	steam = Steam::get_singleton();
+	auto steam = Steam::get_singleton();
 	// s->set_steam_network_peer(this);
 	if (steam != nullptr) {
 		// steam->connect( "lobby_chat_update", this,"lobbyChatUpdate");
@@ -287,11 +287,10 @@ void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSess
 			return;
 		}
 	}
-	ERR_PRINT(String("CONNECTION ATTEMPTED BY PLAYER NOT IN LOBBY! todo: add steamid to this message"));
+	ERR_PRINT(String("CONNECTION ATTEMPTED BY PLAYER NOT IN LOBBY!:") + String::num_uint64(requester.GetAccountID()));
 }
 
 void SteamNetworkPeer::lobbyCreated(int connect, uint64_t lobbyId) {
-	TODO_PRINT("remove steam singleton signal callback");
 	if (connect == 1) {
 		this->lobbyId = CSteamID(uint64(lobbyId));
 		this->lobbyOwner = SteamMatchmaking()->GetLobbyOwner(this->lobbyId);
@@ -306,7 +305,6 @@ void SteamNetworkPeer::lobbyCreated(int connect, uint64_t lobbyId) {
 };
 
 void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64_t memberId) {
-	TODO_PRINT("remove steam singleton signal callback");
 	if (this->lobbyId.ConvertToUint64() != lobbyId) {
 		return;
 	} else if (success == EResult::k_EResultOK) {
@@ -346,7 +344,6 @@ void SteamNetworkPeer::updateLobbyData() {
 };
 
 void SteamNetworkPeer::lobbyJoined(uint64_t lobbyId, uint32_t permissions, bool locked, uint32_t response) {
-	TODO_PRINT("remove steam singleton signal callback");
 	if (response == k_EChatRoomEnterResponseSuccess) {
 		this->lobbyId = CSteamID(uint64(lobbyId));
 		this->lobbyOwner = SteamMatchmaking()->GetLobbyOwner(this->lobbyId);
@@ -403,22 +400,18 @@ void SteamNetworkPeer::lobbyJoined(uint64_t lobbyId, uint32_t permissions, bool 
 };
 
 void SteamNetworkPeer::lobbyGameCreated(uint64_t lobbyId, uint64_t serverId, String serverIp, uint16_t port) {
-	TODO_PRINT("remove steam singleton signal callback");
 	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyInvite(uint64_t inviter, uint64_t lobbyId, uint64_t game) {
-	TODO_PRINT("remove steam singleton signal callback");
 	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyMatchList(Array lobbies) {
-	TODO_PRINT("remove steam singleton signal callback");
 	WARN_PRINT("not yet implemented!");
 };
 
 void SteamNetworkPeer::lobbyKicked(uint64_t lobbyId, uint64_t adminId, uint8_t dueToDisconnect) {
-	TODO_PRINT("remove steam singleton signal callback");
 	WARN_PRINT("not yet implemented!");
 };
 

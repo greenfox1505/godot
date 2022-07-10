@@ -42,7 +42,7 @@ public:
 private:
 	GDCLASS(SteamNetworkPeer, NetworkedMultiplayerPeer);
 
-	Steam *steam;
+	// Steam *steam;
 
 	struct Packet {
 		uint8_t data[MAX_STEAM_PACKET_SIZE];
@@ -113,8 +113,12 @@ private:
 		}
 		return nullptr;
 	}
+
 	// Map<CSteamID,ConnectionData*> steamToGdnet;
 	// Map<uint32_t,ConnectionData*> gdnetToSteam;
+
+
+
 	bool addConnectionPeer(const CSteamID &steamId) {
 		if(steamId == SteamUser()->GetSteamID()){
 			return false;
