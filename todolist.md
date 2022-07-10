@@ -3,9 +3,9 @@
 
 ## Singals
 
-- [ ] `network_peer_connected`
+- [x] `network_peer_connected`
 - [ ] `network_peer_disconnected`
-- [ ] `connected_to_server`
+- [x] `connected_to_server`
 - [ ] `connection_failed`
 - [ ] `server_disconnected`
 
@@ -13,9 +13,9 @@
 
 ### Node
 
-- [ ] `rpc("function_name", <optional_args>)`
+- [x] `rpc("function_name", <optional_args>)`
 - [ ] `rpc_id(<peer_id>,"function_name", <optional_args>)`
-- [ ] `rpc_unreliable("function_name", <optional_args>)`
+- [x] `rpc_unreliable("function_name", <optional_args>)`
 - [ ] `rpc_unreliable_id(<peer_id>, "function_name", <optional_args>)`
 
 ### get_tree()
@@ -30,9 +30,9 @@
 
 ### Internal Systems
 
-gotta figure out this list
-
-
+- [ ] Translate all GodotIDs to SteamIDs.
+- [ ] Translate all SteamIDs to GodotIDs.
+- [ ] Verify Disconnect 
 
 ### CodeFlow
 

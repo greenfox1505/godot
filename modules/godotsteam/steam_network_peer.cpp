@@ -11,6 +11,8 @@
 #endif
 
 #define MAIN_COM_CHANNEL 1
+#define MAX_LOBBY_KEY_LENGTH 255
+#define MAX_CHAT_METADATA 8192
 
 SteamNetworkPeer::SteamNetworkPeer() :
 		callbackLobbyMessage(this, &SteamNetworkPeer::lobbyMessage),
@@ -36,7 +38,7 @@ SteamNetworkPeer::SteamNetworkPeer() :
 	this->connectionStatus = ConnectionStatus::CONNECTION_DISCONNECTED;
 };
 SteamNetworkPeer::~SteamNetworkPeer(){
-
+	closeConnection();
 };
 
 void SteamNetworkPeer::_bind_methods() {
@@ -91,6 +93,12 @@ void SteamNetworkPeer::createClient(uint64_t lobbyId) {
 	isServer = false;
 	connectionStatus = ConnectionStatus::CONNECTION_CONNECTING;
 	SteamMatchmaking()->JoinLobby((uint64)lobbyId);
+}
+void SteamNetworkPeer::closeConnection(){
+	if( lobbyId != CSteamID() ){
+		SteamMatchmaking()->LeaveLobby(lobbyId);
+		lobbyId = CSteamID();
+	}
 }
 Dictionary SteamNetworkPeer::getAllLobbyData() {
 	return lobbyData;
@@ -324,8 +332,7 @@ void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64
 	} else
 		ERR_PRINT("failed!");
 };
-const int MAX_LOBBY_KEY_LENGTH = 255;
-const int MAX_CHAT_METADATA = 8192;
+
 void SteamNetworkPeer::updateLobbyData() {
 	//set all lobby data
 	Dictionary data;

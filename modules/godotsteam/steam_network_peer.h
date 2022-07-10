@@ -155,6 +155,7 @@ public:
 	/* Specific to SteamNetworkPeer */
 	void createServer(int lobby_type, int max_members);
 	void createClient(uint64_t lobbyId);
+	void closeConnection();
 	Dictionary getAllLobbyData();
 	void setLobbyData(String key, String value);
 	String getLobbyData(String key);
