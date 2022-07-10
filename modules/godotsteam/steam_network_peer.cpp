@@ -15,7 +15,7 @@
 SteamNetworkPeer::SteamNetworkPeer() :
 		callbackLobbyMessage(this, &SteamNetworkPeer::lobbyMessage),
 		callbackLobbyChatUpdate(this, &SteamNetworkPeer::lobbyChatUpdate),
-		callbackNetworkMessagesSessionRequest(this,&SteamNetworkPeer::networkMessagesSessionRequest)
+		callbackNetworkMessagesSessionRequest(this, &SteamNetworkPeer::networkMessagesSessionRequest)
 
 {
 	steam = Steam::get_singleton();
@@ -212,18 +212,18 @@ bool SteamNetworkPeer::is_server() const {
 };
 
 #define MAX_MESSAGE_COUNT 255
-void SteamNetworkPeer::poll(){
-	SteamNetworkingMessage_t* messages[MAX_MESSAGE_COUNT];
-	int count = SteamNetworkingMessages()->ReceiveMessagesOnChannel(MAIN_COM_CHANNEL,messages,MAX_MESSAGE_COUNT);
-	for(int i = 0; i < count; i++){
+void SteamNetworkPeer::poll() {
+	SteamNetworkingMessage_t *messages[MAX_MESSAGE_COUNT];
+	int count = SteamNetworkingMessages()->ReceiveMessagesOnChannel(MAIN_COM_CHANNEL, messages, MAX_MESSAGE_COUNT);
+	for (int i = 0; i < count; i++) {
 		auto msg = messages[i];
 		Packet *packet = new Packet;
 		packet->channel = MAIN_COM_CHANNEL;
 		packet->sender = msg->m_identityPeer.GetSteamID();
 		packet->size = msg->GetSize();
 		ERR_FAIL_COND_MSG(packet->size > MAX_STEAM_PACKET_SIZE, "PACKET TOO LARGE!");
-		auto rawData = (char*)msg->GetData();
-		for( uint32_t j = 0; j < packet->size; j++){
+		auto rawData = (char *)msg->GetData();
+		for (uint32_t j = 0; j < packet->size; j++) {
 			packet->data[j] = rawData[j];
 		}
 		receivedPackets.push_back(packet);
@@ -275,12 +275,12 @@ void SteamNetworkPeer::lobbyChatUpdate(LobbyChatUpdate_t *call_data) {
 			break;
 	}
 };
-void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t* t){
+void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t *t) {
 	//search for lobby member
 	CSteamID requester = t->m_identityRemote.GetSteamID();
 	int currentLobbySize = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
-	for(int i = 0; i < currentLobbySize; i++){
-		if(SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId,i) == requester){
+	for (int i = 0; i < currentLobbySize; i++) {
+		if (SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, i) == requester) {
 			SteamNetworkingMessages()->AcceptSessionWithUser(t->m_identityRemote);
 			return;
 		}
@@ -288,10 +288,9 @@ void SteamNetworkPeer::networkMessagesSessionRequest(SteamNetworkingMessagesSess
 	ERR_PRINT(String("CONNECTION ATTEMPTED BY PLAYER NOT IN LOBBY! todo: add steamid to this message"));
 }
 
-
 void SteamNetworkPeer::lobbyCreated(int connect, uint64_t lobbyId) {
 	TODO_PRINT("remove steam singleton signal callback");
-	if(connect == 1 ) {
+	if (connect == 1) {
 		this->lobbyId = CSteamID(uint64(lobbyId));
 		this->lobbyOwner = SteamMatchmaking()->GetLobbyOwner(this->lobbyId);
 		connectionStatus = ConnectionStatus::CONNECTION_CONNECTED;
@@ -304,7 +303,7 @@ void SteamNetworkPeer::lobbyCreated(int connect, uint64_t lobbyId) {
 	}
 };
 
-void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64_t memberId) { 
+void SteamNetworkPeer::lobbyDataUpdate(uint8_t success, uint64_t lobbyId, uint64_t memberId) {
 	TODO_PRINT("remove steam singleton signal callback");
 	if (this->lobbyId.ConvertToUint64() != lobbyId) {
 		return;

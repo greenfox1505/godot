@@ -5,6 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "ToyNet Project",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/godot.windows.tools.64.exe",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [
+                "--editor",
+                "--path","toyNetwork",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis",
+            "preLaunchTask": "build"
+        },        {
             "name": "Debug Project",
             "type": "cppvsdbg",
             "request": "launch",
@@ -13,8 +30,7 @@
             // To run the project instead of editing it, remove the "--editor" argument.
             "args": [
                 "--editor",
-                "--path",
-                "toyNetwork",
+                "--path","../untitled-godot-game",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -31,8 +47,7 @@
             // Change the arguments below for the project you want to test with.
             // To run the project instead of editing it, remove the "--editor" argument.
             "args": [
-                "--path",
-                "toyNetwork",
+                "--path","../untitled-godot-game",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
