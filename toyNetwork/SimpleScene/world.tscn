@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://SimpleScene/Jumper.tscn" type="PackedScene" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+onready var jumper = $Jumper
+
+var jumperScene = preload(\"res://SimpleScene/Jumper.tscn\")
+
+func _ready():
+	get_tree().connect(\"connected_to_server\",self,\"connected_to_server\")
+	get_tree().connect(\"network_peer_connected\",self,\"network_peer_connected\")
+	get_tree().connect(\"network_peer_disconnected\",self,\"network_peer_disconnected\")
+	$Jumper.name = playerNodeFromId(1)
+
+	
+func connected_to_server():
+	$Jumper.name = playerNodeFromId(get_tree().get_network_unique_id())
+	
+
+func network_peer_disconnected(id):
+	get_node(playerNodeFromId(id)).queue_free()
+
+
+func network_peer_connected(id):
+	var j = jumperScene.instance()
+	j.name = playerNodeFromId(id)
+	j.set_network_master(id)
+	j.isCurrentPlayer = false
+	add_child(j,true)
+
+
+
+func playerNodeFromId(id)->String:
+	return \"player\" + String(id)
+"
+
+[node name="world" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="floor" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="floor"]
+polygon = PoolVector2Array( 0, 0, 0, 1080, 1920, 1080, 1920, 0, 1984, 0, 1984, 1144, -64, 1144, -64, 0 )
+
+[node name="Jumper" parent="." instance=ExtResource( 1 )]
+isCurrentPlayer = true
