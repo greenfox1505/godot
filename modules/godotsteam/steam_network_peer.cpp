@@ -204,7 +204,9 @@ void SteamNetworkPeer::set_target_peer(int p_peer_id) {
 };
 
 int SteamNetworkPeer::get_packet_peer() const {
-	return receivedPackets.front()->get()->sender.GetAccountID();
+	//todo! packet peer translation
+	auto a = receivedPackets.front()->get()->sender;
+	return a == lobbyOwner ? 1 : a.GetAccountID();
 };
 
 bool SteamNetworkPeer::is_server() const {

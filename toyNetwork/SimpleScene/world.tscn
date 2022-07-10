@@ -75,4 +75,4 @@ script = SubResource( 1 )
 [node name="floor" type="StaticBody2D" parent="."]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="floor"]
-polygon = PoolVector2Array( 0, 0, 0, 1080, 1920, 1080, 1920, 0, 1984, 0, 1984, 1144, -64, 1144, -64, 0 )
+polygon = PoolVector2Array( 0, 0, 0, 1080, 1920, 1080, 1920, 0, 1984, -64, 1984, 1144, -64, 1144, -64, -64, 1984, -64, 1920, 0 )

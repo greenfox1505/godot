@@ -228,6 +228,8 @@ func _process(delta):
 [sub_resource type="GDScript" id=10]
 script/source = "extends VBoxContainer
 
+export var messageTimeout = 15
+
 func _ready():
 	get_tree().connect(\"network_peer_connected\", self, \"network_peer_connected\")
 	get_tree().connect(\"network_peer_disconnected\", self, \"network_peer_disconnected\")
@@ -261,8 +263,9 @@ func createLabel(text):
 	var asdf = Label.new();
 	asdf.text = text
 	add_child(asdf)
-	yield(get_tree().create_timer(15),\"timeout\")
-	asdf.queue_free()
+	if messageTimeout != -1:
+		yield(get_tree().create_timer(messageTimeout),\"timeout\")
+		asdf.queue_free()
 
 func _process(delta):
 	get_parent().scroll_vertical  = 9999999999999
@@ -460,14 +463,15 @@ margin_bottom = 320.0
 follow_focus = true
 scroll_horizontal_enabled = false
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/ScrollContainer"]
+[node name="messageBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/ScrollContainer"]
 script = SubResource( 10 )
+messageTimeout = -1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="world" parent="CanvasLayer" instance=ExtResource( 2 )]
 
-[connection signal="postMessage" from="." to="PanelContainer/MarginContainer/ScrollContainer/VBoxContainer" method="createLabel"]
+[connection signal="postMessage" from="." to="PanelContainer/MarginContainer/ScrollContainer/messageBox" method="createLabel"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet" method="_on_host_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet/connect" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ENet" method="_on_connect_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam/host" to="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/PureGrampsSteam" method="_on_host_pressed"]
