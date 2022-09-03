@@ -1024,7 +1024,7 @@ static const unsigned int _osx_to_godot_table[128] = {
 	/* 3d */ KEY_ALT,
 	/* 3e */ KEY_CONTROL,
 	/* 3f */ KEY_UNKNOWN, /* Function */
-	/* 40 */ KEY_UNKNOWN, /* F17 */
+	/* 40 */ KEY_F17, /* F17 */
 	/* 41 */ KEY_KP_PERIOD,
 	/* 42 */ KEY_UNKNOWN,
 	/* 43 */ KEY_KP_MULTIPLY,
@@ -1039,8 +1039,8 @@ static const unsigned int _osx_to_godot_table[128] = {
 	/* 4c */ KEY_KP_ENTER,
 	/* 4d */ KEY_UNKNOWN,
 	/* 4e */ KEY_KP_SUBTRACT,
-	/* 4f */ KEY_UNKNOWN, /* F18 */
-	/* 50 */ KEY_UNKNOWN, /* F19 */
+	/* 4f */ KEY_F18, /* F18 */
+	/* 50 */ KEY_F19, /* F19 */
 	/* 51 */ KEY_EQUAL, /* KeypadEqual */
 	/* 52 */ KEY_KP_0,
 	/* 53 */ KEY_KP_1,
@@ -1050,7 +1050,7 @@ static const unsigned int _osx_to_godot_table[128] = {
 	/* 57 */ KEY_KP_5,
 	/* 58 */ KEY_KP_6,
 	/* 59 */ KEY_KP_7,
-	/* 5a */ KEY_UNKNOWN, /* F20 */
+	/* 5a */ KEY_F20, /* F20 */
 	/* 5b */ KEY_KP_8,
 	/* 5c */ KEY_KP_9,
 	/* 5d */ KEY_YEN, /* JIS Yen */
