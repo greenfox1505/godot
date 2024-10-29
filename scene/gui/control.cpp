@@ -3451,6 +3451,7 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_screen_position"), &Control::get_screen_position);
 	ClassDB::bind_method(D_METHOD("get_rect"), &Control::get_rect);
 	ClassDB::bind_method(D_METHOD("get_global_rect"), &Control::get_global_rect);
+	ClassDB::bind_method(D_METHOD("get_screen_rect"), &Control::get_screen_rect);
 	ClassDB::bind_method(D_METHOD("set_focus_mode", "mode"), &Control::set_focus_mode);
 	ClassDB::bind_method(D_METHOD("get_focus_mode"), &Control::get_focus_mode);
 	ClassDB::bind_method(D_METHOD("has_focus"), &Control::has_focus);
